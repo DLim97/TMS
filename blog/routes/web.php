@@ -18,33 +18,9 @@ use Phpml\Classification\KNearestNeighbors;
 
 Route::get('/', '\App\Http\Controllers\CustomController@index');
 
-Route::get('/product/{id}', function ($id) {
-	$travel = \App\Models\travel::get()->where('id', $id)->first();;
-	$favorite = null;
-	if(Auth::check()){
-		$history = new \App\Models\history;
-		$history->user_id = Auth::user()->id;
-		$history->country_id = $travel->country_id;
-		// $history->save();
+Route::get('/travel_item/{id}', '\App\Http\Controllers\CustomController@travel_page');
 
-
-		// Asia, Middle-East, Europe
-		$samples = [];
-		$labels = [];
-		$fulls = \App\Models\history::get();
-		foreach ($fulls as $full) {
-			array_push($samples, [$full->country_id]);
-			array_push($labels, $full->country_id);
-		}
-
-
-		$classifier = new KNearestNeighbors($k=5);
-		$classifier->train($samples, $labels);
-		$favorites = \App\Models\travel::get()->where('country_id',$classifier->predict([$id]));
-
-	}
-	return view('product',compact('travel','favorites'));
-});
+Route::get('/hotel_item/{id}', '\App\Http\Controllers\CustomController@hotel_page');
 
 Route::get('/travel', '\App\Http\Controllers\CustomController@travel');
 

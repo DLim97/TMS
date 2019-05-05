@@ -20,8 +20,7 @@
 
 
 	<!-- Fonts -->
-	<link href="https://fonts.googleapis.com/css?family=Nunito:200,600" rel="stylesheet" type="text/css">
-
+	<link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i" rel="stylesheet">
 	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
 
 	<!-- KnockoutJs -->
@@ -29,6 +28,10 @@
 
 
 	<style type="text/css">
+
+	body{
+		font-family: 'Nunito';
+	}
 
 	.navbar{
 		background-color: #41444A;
@@ -96,7 +99,7 @@
 	.travel_block{
 		background-size: auto 100%;
 		background-position-x: center;
-		height: 500px;
+		height: 570px;
 		transition: 0.25s;
 		position: relative;
 		border-top: 10px solid #343434;
@@ -149,6 +152,19 @@
 
 	.travel_block:hover .travel_block_product_description{
 		height: 250px;
+	}
+
+	.travel_block_dates span{
+		display: inline-block;
+		padding: 10px 15px;
+		border: 1px solid #87c0cd;
+		border-radius: 5px;
+		font-weight: 600;
+		color: #87c0cd;
+	}
+
+	.travel_block_dates i{
+		color: #87c0cd;
 	}
 
 
@@ -373,6 +389,11 @@
 		color: #F7FFF7;
 		padding: 10px 0px;
 		transition: 0.25s;
+	}
+
+	.btn_large a{
+		text-decoration: none;
+		color: #F7FFF7;
 	}
 
 	.btn_view_search{

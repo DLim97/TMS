@@ -20,6 +20,7 @@ class FacilityController extends AppBaseController
     public function __construct(FacilityRepository $facilityRepo)
     {
         $this->facilityRepository = $facilityRepo;
+        $this->middleware('auth');
     }
 
     /**

@@ -19,7 +19,6 @@
     transition: background-position 0.3s;
 }
 
-
 </style>
 
 @endsection
@@ -76,7 +75,7 @@
             <div class="travel_block shadow">
                 <img src="{{ asset( $travel->roomType->hotel->place->Place_IMG ) }}">   
                 <div class="travel_block_cover">
-                    <a class="travel_block_button" href="#">Explore</a>
+                    <a class="travel_block_button" href="{{ '/travel_item/' . $travel->id }}">Explore</a>
                 </div>
                 <div class="col-12 travel_block_product">
                     <div class="row py-3">
@@ -84,8 +83,15 @@
                             <div class="title_name">{{ $travel->Travel_Name }}</div>
                             <div class="title_country">{{ $travel->roomType->hotel->place->country->Country_Name}}</div>
                         </div>
-                        <div class="col-4 travel_block_product_price">
-                            <span>{{ 'RM' . $travel->Price}}</span>
+                        <div class="col-4">
+                            <div class="travel_block_product_price">
+                                <span>{{ 'RM' . $travel->Price}}</span>
+                            </div>
+                        </div>
+                        <div class="col-12 my-2">
+                            <div class="travel_block_dates">
+                                <span>{{$travel->Start_date->format('D d M y')}}</span> <i class="fas fa-arrow-right"></i> <span>{{$travel->End_date->format('D d M y')}}</span>
+                            </div>
                         </div>
                     </div>
                     <div class="row">

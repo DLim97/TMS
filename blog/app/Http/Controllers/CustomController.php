@@ -34,10 +34,11 @@ class CustomController extends Controller
         // return view('home');
 	}
 
-    public function travel()
-    {   
+    public function travel(){
+
         $travels = \App\Models\travel::get();
         foreach ($travels as $travel) {
+            $travel_block["id"] = $travel->id;
             $travel_block["Travel_Name"] = $travel->Travel_Name;
             $travel_block["Start_date"] = $travel->Start_date;
             $travel_block["End_date"] = $travel->End_date;
@@ -54,11 +55,12 @@ class CustomController extends Controller
         return view('travel', compact('travels','travel_array', 'region_array'));
     }
 
-    public function hotel()
-    {   
+    public function hotel(){
+
         $hotels = \App\Models\hotel::get();
 
         foreach ($hotels as $hotel) {
+            $hotel_block["id"] = $hotel->id;
             $hotel_block["Hotel_Name"] = $hotel->Hotel_Name;
             $hotel_block["Place"] = $hotel->place->Place_Name;
             $hotel_block["Country"] = $hotel->place->country->Country_Name;
@@ -127,4 +129,97 @@ class CustomController extends Controller
             return $combined_table;
         }
     }
+
+
+    public function travel_page($id){
+
+        $travel = \App\Models\Travel::findOrFail($id);
+
+
+        switch ($travel->roomType->Bed_Size) {
+            case "1": $pax = 2;break;
+            case "2": $pax = 2;break;
+            case "3": $pax = 1;break;
+            case "4": $pax = 1;break;
+        }
+
+        $travel->pax = $travel->roomType->NBeds * $pax;
+
+        $travel->facilities = \App\Models\Facility::findMany($travel->roomType->hotel->Facility_ID);
+
+    // $favorite = null;
+    // if(Auth::check()){
+    //  $history = new \App\Models\history;
+    //  $history->user_id = Auth::user()->id;
+    //  $history->country_id = $travel->country_id;
+    //  $history->save();
+
+
+    //  // Asia, Middle-East, Europe
+    //  $samples = [];
+    //  $labels = [];
+    //  $fulls = \App\Models\history::get();
+    //  foreach ($fulls as $full) {
+    //      array_push($samples, [$full->country_id]);
+    //      array_push($labels, $full->country_id);
+    //  }
+
+
+    //  $classifier = new KNearestNeighbors($k=5);
+    //  $classifier->train($samples, $labels);
+    //  $favorites = \App\Models\travel::get()->where('country_id',$classifier->predict([$id]));
+    // }
+        return view('travel_item',compact('travel'));
+
+
+    }
+
+
+    public function hotel_page($id){
+
+        $hotel = \App\Models\Hotel::findOrFail($id);
+
+        $hotel->facilities = \App\Models\Facility::findMany($hotel->Facility_ID);
+
+        $hotel->rooms = \App\Models\RoomType::where('Hotel_ID', $hotel->id)->get();
+
+        foreach ($hotel->rooms as $room) {
+            switch ($room->Bed_Size) {
+                case "1": $pax = 2;break;
+                case "2": $pax = 2;break;
+                case "3": $pax = 1;break;
+                case "4": $pax = 1;break;
+            }
+            $room->pax = $room->NBeds * $pax;
+        }
+
+
+    // $favorite = null;
+    // if(Auth::check()){
+    //  $history = new \App\Models\history;
+    //  $history->user_id = Auth::user()->id;
+    //  $history->country_id = $travel->country_id;
+    //  $history->save();
+
+
+    //  // Asia, Middle-East, Europe
+    //  $samples = [];
+    //  $labels = [];
+    //  $fulls = \App\Models\history::get();
+    //  foreach ($fulls as $full) {
+    //      array_push($samples, [$full->country_id]);
+    //      array_push($labels, $full->country_id);
+    //  }
+
+
+    //  $classifier = new KNearestNeighbors($k=5);
+    //  $classifier->train($samples, $labels);
+    //  $favorites = \App\Models\travel::get()->where('country_id',$classifier->predict([$id]));
+    // }
+        return view('hotel_item',compact('hotel'));
+
+
+    }
+
+
 }

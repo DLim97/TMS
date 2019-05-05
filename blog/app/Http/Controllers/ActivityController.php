@@ -19,6 +19,7 @@ class ActivityController extends AppBaseController
     public function __construct(ActivityRepository $activityRepo)
     {
         $this->activityRepository = $activityRepo;
+        $this->middleware('auth');
     }
 
     /**

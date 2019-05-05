@@ -83,7 +83,7 @@
 													<span data-bind="text: RoomType_Name"></span> ( <span data-bind="text: pax"></span> pax )
 												</div>
 												<div class="col-6 description_text hotels_price_text" style="text-align: right">
-													RM <span data-bind="text: Price"></span>/pax
+													RM <span data-bind="text: Price"></span> / Night
 												</div>
 											</div>
 										</div>
@@ -197,11 +197,8 @@
 					var checkBud = false;
 					$(bud.roomTypes).each(function(index){
 						if(this.Price <= budget){
-							checkBud =  true;
+							checkBud = true;
 							return;
-						}
-						else{
-							checkBud = false;
 						}
 					});
 					return checkBud;

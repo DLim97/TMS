@@ -20,6 +20,7 @@ class PlaceController extends AppBaseController
     public function __construct(PlaceRepository $placeRepo)
     {
         $this->placeRepository = $placeRepo;
+        $this->middleware('auth');
     }
 
     /**

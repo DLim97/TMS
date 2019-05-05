@@ -73,10 +73,10 @@
 								<div class="row">
 									<div class="col-12 p-0 mt-3 btn_group_search_product text-center">
 										<div class="col-12 btn_large btn_view_search">
-											<div>View</div>
+											<a data-bind="attr:{href: '/travel_item/' + id}"><div>View</div></a>
 										</div>
 										<div class="col-12 btn_large btn_purchase_search">
-											<div>Purchase</div>
+											<a href="#"><div>Purchase</div></a>
 										</div>
 									</div>
 								</div>
@@ -98,8 +98,9 @@
 
 	var regions = {!! json_encode($region_array) !!};
 
-	function TravelBlock(name,start_date,end_date,price,country,region,description,image){
+	function TravelBlock(id,name,start_date,end_date,price,country,region,description,image){
 		var self = this;
+		self.id = id;
 		self.name = name;
 		self.start_date = start_date;
 		self.end_date = end_date;
@@ -124,7 +125,7 @@
 		self.selectedItem = ko.observableArray([]);
 
 		$(travels).each(function(index){
-			self.travels.push(new TravelBlock(this.Travel_Name,this.Start_date,this.End_date,this.Price,this.Country, this.Region, this.Description,this.Image));
+			self.travels.push(new TravelBlock(this.id,this.Travel_Name,this.Start_date,this.End_date,this.Price,this.Country, this.Region, this.Description,this.Image));
 		});
 
 
@@ -178,7 +179,7 @@
 					console.log(data);
 					self.travels.removeAll();
 					$(data).each(function(index){
-						self.travels.push(new TravelBlock(this.Travel_Name,this.Start_date,this.End_date,this.Price,this.Country_Name, this.Region_ID, this.Description,this.Place_IMG));
+						self.travels.push(new TravelBlock(this.id,this.Travel_Name,this.Start_date,this.End_date,this.Price,this.Country_Name, this.Region_ID, this.Description,this.Place_IMG));
 					});
 				});
 			}

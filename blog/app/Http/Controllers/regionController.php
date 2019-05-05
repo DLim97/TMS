@@ -19,6 +19,7 @@ class regionController extends AppBaseController
     public function __construct(regionRepository $regionRepo)
     {
         $this->regionRepository = $regionRepo;
+        $this->middleware('auth');
     }
 
     /**

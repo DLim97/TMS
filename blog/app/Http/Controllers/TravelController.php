@@ -19,6 +19,7 @@ class TravelController extends AppBaseController
     public function __construct(TravelRepository $travelRepo)
     {
         $this->travelRepository = $travelRepo;
+        $this->middleware('auth');
     }
 
     /**
