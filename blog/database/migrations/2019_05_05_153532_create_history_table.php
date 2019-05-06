@@ -15,10 +15,12 @@ class CreateHistoryTable extends Migration
     {
         Schema::create('history', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('hover');
-            $table->string('visited');
-            $table->string('search');
+            $table->integer('User_ID')->unsigned();;
+            $table->string('hover')->nullable();
+            $table->string('visited')->nullable();
+            $table->string('search')->nullable();
             $table->timestamps();
+            $table->foreign('User_ID')->references('id')->on('users');
         });
     }
 

@@ -153,48 +153,27 @@
   <h3 class="my-4">Available Packages</h3>
 
   <div class="row">
-    @if(auth()->check())
-    @if(!empty( $favorites ))
-    @foreach($favorites as $favorite)
-    <div class="col-4 text-center" style="margin-bottom: 30px;">
-      <div class="card">
-        <img class="card-img-top" src="{{ asset('image/France.jpg') }}" alt="Card image">
-        <div class="card-body">
-          <h4 class="card-title">3 Days 2 Night {{$favorite->country->Country_name}}</h4>
-          <p class="card-text">Enjoy a wonderful trip in one of the Malaysia's landmark.</p>
-          <h2>RM{{$favorite->price}}</h2>
-          <a href="/travel/{{$travel->id}}" class="btn btn-primary">View Details</a>
-        </div>
-      </div>
-    </div>
-    @endforeach 
-    @endif
-    @else
-    @php
-    $newTravels = \App\Models\travel::get()->take(3);
-    @endphp
-    @foreach($newTravels as $key => $newTravel)
-
+    @foreach($sorted_travel_suggestions as $sorted_travel_suggestion)
     <div class="col-4 mb-5">
       <div class="travel_block shadow">
-        <img src="{{ asset( $newTravel->roomType->hotel->place->Place_IMG ) }}">   
+        <img src="{{ asset( $sorted_travel_suggestion->roomType->hotel->place->Place_IMG ) }}">   
         <div class="travel_block_cover">
-          <a class="travel_block_button" href="{{ '/travel_item/' . $newTravel->id }}">Explore</a>
+          <a class="travel_block_button" href="{{ '/travel_item/' . $sorted_travel_suggestion->id }}">Explore</a>
         </div>
         <div class="col-12 travel_block_product">
           <div class="row py-3">
             <div class="col-8 travel_block_product_title">
-              <div class="title_name">{{ $newTravel->Travel_Name }}</div>
-              <div class="title_country">{{ $newTravel->roomType->hotel->place->country->Country_Name}}</div>
+              <div class="title_name">{{ $sorted_travel_suggestion->Travel_Name }}</div>
+              <div class="title_country">{{ $sorted_travel_suggestion->roomType->hotel->place->country->Country_Name}}</div>
             </div>
             <div class="col-4">
               <div class="travel_block_product_price">
-                <span>{{ 'RM' . $newTravel->Price}}</span>
+                <span>{{ 'RM' . $sorted_travel_suggestion->Price}}</span>
               </div>
             </div>
             <div class="col-12 my-2">
               <div class="travel_block_dates">
-                <span>{{$newTravel->Start_date->format('D d M y')}}</span> <i class="fas fa-arrow-right"></i> <span>{{$newTravel->End_date->format('D d M y')}}</span>
+                <span>{{$sorted_travel_suggestion->Start_date->format('D d M y')}}</span> <i class="fas fa-arrow-right"></i> <span>{{$sorted_travel_suggestion->End_date->format('D d M y')}}</span>
               </div>
             </div>
           </div>
@@ -202,16 +181,14 @@
             <div class="col-12 travel_block_product_description">
               <div class="description_title">Description</div>
               <div class="description_text">
-                {{ $newTravel->roomType->hotel->place->Description }}
+                {{ $sorted_travel_suggestion->roomType->hotel->place->Description }}
               </div>
             </div> 
           </div>
         </div>
       </div>
     </div>
-
-    @endforeach 
-    @endif
+    @endforeach
   </div>
 </div>
 @endsection

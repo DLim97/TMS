@@ -102,10 +102,10 @@
 								<div class="row">
 									<div class="col-12 p-0 mt-3 btn_group_search_product text-center">
 										<div class="col-12 btn_large btn_view_search">
-											<div>View</div>
+											<a data-bind="attr:{href: '/hotel_item/' + id}"><div>View</div></a>
 										</div>
 										<div class="col-12 btn_large btn_purchase_search">
-											<div>Customize</div>
+											<a href="#"><div>Purchase</div></a>
 										</div>
 									</div>
 								</div>
@@ -127,8 +127,9 @@
 
 	var regions = {!! json_encode($region_array) !!};
 
-	function TravelBlock(name,place,country,region,roomTypes,image,facilities){
+	function TravelBlock(id,name,place,country,region,roomTypes,image,facilities){
 		var self = this;
+		self.id = id;
 		self.name = name;
 		self.place = place;
 		self.country = country;
@@ -165,7 +166,7 @@
 
 
 
-			self.hotels.push(new TravelBlock(this.Hotel_Name, this.Place, this.Country, this.Region,this.RoomTypes, this.Hotel_Image, this.Facilities));
+			self.hotels.push(new TravelBlock(this.id, this.Hotel_Name, this.Place, this.Country, this.Region,this.RoomTypes, this.Hotel_Image, this.Facilities));
 		});
 
 
@@ -234,7 +235,8 @@
 							}
 							this.pax = pax * this.NBeds;
 						});
-						self.hotels.push(new TravelBlock(this.Hotel_Name, this.Place_Name, this.Country_Name, this.Region_ID,this.RoomTypes, this.Hotel_IMG, this.Facilities));
+						console.log(this);
+						self.hotels.push(new TravelBlock(this.id, this.Hotel_Name, this.Place_Name, this.Country_Name, this.Region_ID, this.RoomTypes, this.Hotel_IMG, this.Facilities));
 
 						$('[data-toggle="tooltip"]').tooltip();
 					});

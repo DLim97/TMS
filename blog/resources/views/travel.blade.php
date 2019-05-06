@@ -8,6 +8,22 @@
 
 .travel_page_card{
 	height: 100%;
+	transition: 0.15s;
+}
+
+.travel_page_card:hover{
+	cursor: pointer;
+	box-shadow: 0 .5rem 1rem rgba(0,0,0,.15);
+}
+
+.travel_block_dates{
+	text-align: center;
+}
+
+.tms_search_person_allowed span{
+	font-size: 14px;
+	color: #969699;
+	font-weight: 400;
 }
 
 
@@ -62,6 +78,14 @@
 									<div class="col-5 tms_search_product_price">
 										<span>RM</span>
 										<span data-bind="text: price"></span>
+										<div class="tms_search_person_allowed text-center">
+											<span data-bind="text:pax"></span><span> Person</span>
+										</div>
+									</div>
+									<div class="col-12 my-2">
+										<div class="travel_block_dates">
+											<span data-bind="text: start_date"></span> <i class="fas fa-arrow-right"></i> <span data-bind="text: end_date"></span>
+										</div>
 									</div>
 								</div>
 								<div class="row">
@@ -98,17 +122,23 @@
 
 	var regions = {!! json_encode($region_array) !!};
 
-	function TravelBlock(id,name,start_date,end_date,price,country,region,description,image){
+	function TravelBlock(id,name,start_date,end_date,price,country,region,description,image,pax){
+		var start = new Date(start_date);
+		var modified_start = start.getDate() + "/" + (start.getMonth() + 1) + "/" + start.getYear().toString().substr(-2);
+		var end = new Date(end_date);
+		var modified_end = end.getDate() + "/" + (end.getMonth() + 1) + "/" + end.getYear().toString().substr(-2);
+
 		var self = this;
 		self.id = id;
 		self.name = name;
-		self.start_date = start_date;
-		self.end_date = end_date;
+		self.start_date = modified_start;
+		self.end_date = modified_end;
 		self.price = price;
 		self.country = country;
 		self.region = region;
 		self.description = description;
 		self.image = image;
+		self.pax = pax;
 	}
 
 	function RegionBlock(id, name){
@@ -125,7 +155,7 @@
 		self.selectedItem = ko.observableArray([]);
 
 		$(travels).each(function(index){
-			self.travels.push(new TravelBlock(this.id,this.Travel_Name,this.Start_date,this.End_date,this.Price,this.Country, this.Region, this.Description,this.Image));
+			self.travels.push(new TravelBlock(this.id,this.Travel_Name,this.Start_date.date,this.End_date.date,this.Price,this.Country, this.Region, this.Description,this.Image,this.pax));
 		});
 
 
@@ -176,10 +206,9 @@
 					method: "GET",
 					url: "/getTravel/" + keywords,
 				}).done(function(data) {
-					console.log(data);
 					self.travels.removeAll();
 					$(data).each(function(index){
-						self.travels.push(new TravelBlock(this.id,this.Travel_Name,this.Start_date,this.End_date,this.Price,this.Country_Name, this.Region_ID, this.Description,this.Place_IMG));
+						self.travels.push(new TravelBlock(this.id,this.Travel_Name,this.Start_date.Start_date,this.End_date.End_date,this.Price,this.Country_Name, this.Region_ID, this.Description,this.Place_IMG, this.pax));
 					});
 				});
 			}
