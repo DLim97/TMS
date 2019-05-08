@@ -11,29 +11,12 @@ use Illuminate\Support\Facades\Auth;
 class CustomController extends Controller
 {
     //
-	public function index()
-	{   
+	public function index(){
+
 		$countries = \App\Models\country::get()->take(3);
 		$travels = \App\Models\travel::get();
 		return view('homepage', compact('countries','travels'));
-		
-        //Asia, Middle-East, Europe
-        // $samples = [];
-        // array_push($samples, [1]);
-        // array_push($samples, [1]);
-        // array_push($samples, [2]);
-        // array_push($samples, [3]);
-        // array_push($samples, [3]);
 
-
-        // $labels = ['Asia','Asia','Middle-East','Europe','Europe'];
-
-        // $classifier = new KNearestNeighbors($k=3);
-        // $classifier->train($samples, $labels);
-
-        // dd($classifier->predict([1]));
-
-        // return view('home');
 	}
 
     public function travel(){
@@ -62,12 +45,12 @@ class CustomController extends Controller
             $travel_block["pax"] = $travel->pax;
             $travel_array[] = $travel_block;
 
-
         }
 
         $region_array = \App\Models\region::get();
 
         return view('travel', compact('travels','travel_array', 'region_array'));
+
     }
 
     public function hotel(){
@@ -94,6 +77,76 @@ class CustomController extends Controller
         
     }
 
+    public function requestPurchase($type, $data){
+
+        if($type == 1){
+            $user = \App\User::find(Auth::user()->id);
+
+            $order = \App\Models\Travel::find($data);
+
+            $type = 1;
+
+            if(!$order){
+                abort(500);
+            }
+
+            return view('purchase', compact('user', 'order','type'));
+        }
+        else if($type == 2){
+
+            $user = \App\User::find(Auth::user()->id);
+
+            $order = \App\Models\RoomType::find($data);
+
+            $type = 2;
+
+            return view('purchase', compact('user', 'order','type'));
+
+        }
+        else{
+            abort(404);
+        }
+
+    }
+
+    public function processPurchase(Request $request, $type, $order_id){
+        
+        if($type == 1){
+
+            $order_details = \App\Models\Travel::findOrFail($order_id);
+
+            $order = new \App\Models\Order;
+            $order->User_ID = Auth::user()->id;
+            $order->Travel_ID = $order_details->id;
+            $order->RoomType_ID = $order_details->roomType->id;
+            $order->Start_date = $order_details->Start_date;
+            $order->End_date = $order_details->End_date;
+            $order->Price = $order_details->Price;
+            $order->save();
+
+        }
+        else if($type == 2){
+
+            $order_details = \App\Models\RoomType::findOrFail($order_id);
+
+            $order = new \App\Models\Order;
+            $order->User_ID = Auth::user()->id;
+            $order->RoomType_ID = $order_details->id;
+            $order->Start_date = $request->start_date;
+            $order->End_date = $request->end_date;
+            $nDays = $order->Start_date->diffInDays($order->End_date);
+            $order->Price = $order_details->Price * $nDays;
+            $order->save();
+
+
+        }
+        else{
+            abort(500);
+        }
+
+        return redirect('/');
+    }
+
     public function search_travel(Request $request, $keywords){
 
         // $str = $keywords 
@@ -114,7 +167,7 @@ class CustomController extends Controller
             ->orWhere('Country_Name', 'LIKE', '%'.$keywords.'%')
             ->orWhere('Region_Name', 'LIKE', '%'.$keywords.'%')
             ->orWhere('places.Description', 'LIKE', '%'.$keywords.'%')
-            ->select('travels.id AS id', 'Travel_Name','Start_date','End_date','travels.Price',"Country_Name","regions.id AS Region_ID","places.Description AS Description", "Place_IMG", "travels.RoomType_ID AS RoomType_ID")
+            ->select('travels.id AS id', 'Travel_Name','Start_date','End_date','travels.Price',"Country_Name","regions.id AS Region_ID","places.Description AS Description", "Place_IMG", "travels.RoomType_ID AS RoomType_ID", 'Country_ID', 'Place_ID')
             ->get();
 
             foreach ($combined_table as $combined_table_item) {
@@ -133,9 +186,72 @@ class CustomController extends Controller
                 $combined_table_item->pax = $combined_table_item->RoomTypes->NBeds * $pax;
             }
 
+            $results = [];
 
 
-            return $combined_table;
+            if(Auth::check()){
+
+                $userCheck = \App\Models\History::where('id', Auth::user()->id)->exists();
+
+                foreach ($combined_table as $combined_table_item) {
+                    $travel = \App\Models\Travel::find($combined_table_item->id);
+
+                    if(!$userCheck){
+                        $travel_data['id'] = $travel->id;
+                        $travel_data['count'] = 1;
+                        $travel_array[] = $travel_data;
+                        $travel_type['travels'] = $travel_array;
+                        $history = new \App\Models\history;
+                        $history->User_ID = Auth::User()->id;
+                        $history->search = $travel_type;
+                        $history->save();
+                        $currentUser = $history;
+                    }
+                    else
+                    {
+                        $user_history = \App\Models\History::find(Auth::user()->id);
+                        $history = ($user_history->search) ? $user_history->search : [];
+                        $recent = false;
+
+                        if(!array_key_exists("travels", $history)){
+
+                            $travel_data['id'] = $travel->id;
+                            $travel_data['count'] = 1;
+                            $travel_array[] = $travel_data;
+                            $history['travels'] = $travel_array;
+                            $user_history->search = $history;
+                            $user_history->save();
+                        }
+                        else{
+                            foreach ($history['travels'] as $key => $history_data) {
+                                if($history_data['id'] == $travel->id){
+                                    $recent = true;
+                                    $history['travels'][$key]['count'] = $history_data['count'] + 1;
+                                }
+
+                            }
+                            if(!$recent){
+                                $travel_data['id'] = $travel->id;
+                                $travel_data['count'] = 1;
+                                array_push($history['travels'], $travel_data);
+                            }
+
+                            $user_history->search = $history;
+                            $user_history->save();
+                            $currentUser = $user_history;
+
+                        }
+                    }
+                }
+
+
+                $results = $this->personalize(1,$travel,$currentUser->search);
+
+            }
+
+
+
+            return [$combined_table,$results];
         }
     }
 
@@ -160,10 +276,78 @@ class CustomController extends Controller
                 $combined_table_item->Facilities = \App\Models\Facility::findMany(json_decode($combined_table_item->Facilities))->toArray();
             }
 
-            return $combined_table;
-        }
-    }
 
+            $results = [];
+
+
+            if(Auth::check()){
+
+                $userCheck = \App\Models\History::where('id', Auth::user()->id)->exists();
+
+                foreach ($combined_table as $combined_table_item) {
+                    $hotel = \App\Models\Hotel::find($combined_table_item->id);
+
+
+
+                    if(!$userCheck){
+                        $travel_data['id'] = $hotel->id;
+                        $travel_data['count'] = 1;
+                        $travel_array[] = $travel_data;
+                        $travel_type['hotels'] = $travel_array;
+                        $history = new \App\Models\history;
+                        $history->User_ID = Auth::User()->id;
+                        $history->search = $travel_type;
+                        $history->save();
+                        $currentUser = $history;
+                    }
+                    else
+                    {
+                        $user_history = \App\Models\History::find(Auth::user()->id);
+                        $history = ($user_history->search) ? $user_history->search : [];
+                        $recent = false;
+
+                        if(!array_key_exists("hotels", $history)){
+                            $travel_data['id'] = $hotel->id;
+                            $travel_data['count'] = 1;
+                            $travel_array[] = $travel_data;
+                            $history['hotels'] = $travel_array;
+                            $user_history->search = $history;
+                            $user_history->save();
+                        }
+                        else{
+                            foreach ($history['hotels'] as $key => $history_data) {
+                                if($history_data['id'] == $hotel->id){
+                                    $recent = true;
+                                    $history['hotels'][$key]['count'] = $history_data['count'] + 1;
+                                }
+
+                            }
+                            if(!$recent){
+                                $travel_data['id'] = $hotel->id;
+                                $travel_data['count'] = 1;
+                                array_push($history['hotels'], $travel_data);
+                            }
+
+                            $user_history->search = $history;
+                            $user_history->save();
+                            $currentUser = $user_history;
+
+                        }
+                    }
+                }
+
+
+                $results = $this->personalize(2,$hotel,$currentUser->search);
+
+            }
+
+
+
+
+            return [$combined_table, $results];
+        }
+
+    }
 
     public function travel_page($id){
 
@@ -183,501 +367,504 @@ class CustomController extends Controller
 
         $results = [];
 
-        /*
-            Number of people
-            Budget
-            Location
-        */
 
 
-            if(Auth::check()){
+        if(Auth::check()){
 
-                $userCheck = \App\Models\History::where('id', Auth::user()->id)->exists();
+            $userCheck = \App\Models\History::where('id', Auth::user()->id)->exists();
 
-                if(!$userCheck){
+            if(!$userCheck){
+                $travel_data['id'] = $travel->id;
+                $travel_data['count'] = 1;
+                $travel_array[] = $travel_data;
+                $travel_type['travels'] = $travel_array;
+                $history = new \App\Models\history;
+                $history->User_ID = Auth::User()->id;
+                $history->visited = $travel_type;
+                $history->save();
+                $currentUser = $history;
+            }
+            else{
+                $user_history = \App\Models\History::find(Auth::user()->id);
+                $history = $user_history->visited;
+                $recent = false;
+
+                if(!array_key_exists("travels", $history)){
+
                     $travel_data['id'] = $travel->id;
                     $travel_data['count'] = 1;
                     $travel_array[] = $travel_data;
-                    $travel_type['travels'] = $travel_array;
-                    $history = new \App\Models\history;
-                    $history->User_ID = Auth::User()->id;
-                    $history->visited = $travel_type;
-                    $history->save();
-                    $currentUser = $history;
+                    $history['travels'] = $travel_array;
+                    $user_history->visited = $history;
+                    $user_history->save();
                 }
                 else{
-                    $user_history = \App\Models\History::find(Auth::user()->id);
-                    $history = $user_history->visited;
-                    $recent = false;
-
-                    if(!array_key_exists("travels", $history)){
-
-                        $travel_data['id'] = $hotel->id;
+                    foreach ($history['travels'] as $key => $history_data) {
+                        if($history_data['id'] == $travel->id){
+                            $recent = true;
+                            $history['travels'][$key]['count'] = $history_data['count'] + 1;
+                        }
+                    }
+                    if(!$recent){
+                        $travel_data['id'] = $travel->id;
                         $travel_data['count'] = 1;
-                        $travel_array[] = $travel_data;
-                        $history['travels'] = $travel_array;
-                        $user_history->visited = $history;
-                        $user_history->save();
+                        array_push($history['travels'], $travel_data);
                     }
-                    else{
-                        foreach ($history['travels'] as $key => $history_data) {
-                            if($history_data['id'] == $travel->id){
-                                $recent = true;
-                                $history['travels'][$key]['count'] = $history_data['count'] + 1;
-                            }
 
-                        }
-                        if(!$recent){
-                            $travel_data['id'] = $travel->id;
-                            $travel_data['count'] = 1;
-                            array_push($history['travels'], $travel_data);
-                        }
+                    $user_history->visited = $history;
+                    $user_history->save();
+                    $currentUser = $user_history;
 
-                        $user_history->visited = $history;
-                        $user_history->save();
-                        $currentUser = $user_history;
-
-                    }
                 }
-
-                $results = $this->personalize(1,$travel,$currentUser->visited);
-
             }
 
-            if(sizeof($results) == 0){
-                $filtered_travel_suggestions = \App\Models\Travel::take(3);
-            }
-            else{
-                $nop = $results[0];
-                $budget = $results[1];
-                $location = $results[2];
-
-
-                $travel_suggestions = \App\Models\Travel::get();
-
-                $filtered_travel_suggestions = $travel_suggestions->filter(function($travel_suggestion,$key) use ($nop,$budget,$location,$pax){
-
-                    switch ($travel_suggestion->roomType->Bed_Size) {
-                        case "1": $pax = 2;break;
-                        case "2": $pax = 2;break;
-                        case "3": $pax = 1;break;
-                        case "4": $pax = 1;break;
-                    }
-                    $travel_suggestion->pax =  $travel_suggestion->roomType->NBeds * $pax;
-
-                    return $travel_suggestion->Price <= $budget || $travel_suggestion->pax == $nop || $travel_suggestion->roomType->hotel->place->country->id == $location->country->id || $travel_suggestion->roomType->hotel->place->country->regions->id == $location->country->regions->id;
-                });
-
-
-
-                $processed_travel_suggestions = $this->sortTravel(1, $nop, $budget, $location, $filtered_travel_suggestions);
-
-                $sorted_travel_suggestions = $processed_travel_suggestions->take(3);
-
-            }
-
-
-            return view('travel_item',compact('travel', 'sorted_travel_suggestions'));
+            $results = $this->personalize(1,$travel,$currentUser->visited);
 
         }
 
+        if(sizeof($results) == 0){
+            $sorted_travel_suggestions = \App\Models\Travel::take(3)->get();
+        }
+        else{
+            $nop = $results[0];
+            $budget = $results[1];
+            $location = $results[2];
 
-        public function hotel_page($id){
 
-            $hotel = \App\Models\Hotel::findOrFail($id);
+            $travel_suggestions = \App\Models\Travel::get();
 
-            $hotel->facilities = \App\Models\Facility::findMany($hotel->Facility_ID);
+            $filtered_travel_suggestions = $travel_suggestions->filter(function($travel_suggestion,$key) use ($nop,$budget,$location,$pax){
 
-            $hotel->rooms = \App\Models\RoomType::where('Hotel_ID', $hotel->id)->get();
-
-            foreach ($hotel->rooms as $room) {
-                switch ($room->Bed_Size) {
+                switch ($travel_suggestion->roomType->Bed_Size) {
                     case "1": $pax = 2;break;
                     case "2": $pax = 2;break;
                     case "3": $pax = 1;break;
                     case "4": $pax = 1;break;
                 }
-                $room->pax = $room->NBeds * $pax;
+                $travel_suggestion->pax =  $travel_suggestion->roomType->NBeds * $pax;
+
+                return $travel_suggestion->Price <= $budget || $travel_suggestion->pax == $nop || $travel_suggestion->roomType->hotel->place->country->id == $location->country->id || $travel_suggestion->roomType->hotel->place->country->regions->id == $location->country->regions->id;
+            });
+
+
+
+            $processed_travel_suggestions = $this->sortTravel(1, $nop, $budget, $location, $filtered_travel_suggestions);
+
+            $sorted_travel_suggestions = $processed_travel_suggestions->take(3);
+
+        }
+
+
+        return view('travel_item',compact('travel', 'sorted_travel_suggestions'));
+
+    }
+
+    public function hotel_page($id){
+
+        $hotel = \App\Models\Hotel::findOrFail($id);
+
+        $hotel->facilities = \App\Models\Facility::findMany($hotel->Facility_ID);
+
+        $hotel->rooms = \App\Models\RoomType::where('Hotel_ID', $hotel->id)->get();
+
+        foreach ($hotel->rooms as $room) {
+            switch ($room->Bed_Size) {
+                case "1": $pax = 2;break;
+                case "2": $pax = 2;break;
+                case "3": $pax = 1;break;
+                case "4": $pax = 1;break;
             }
+            $room->pax = $room->NBeds * $pax;
+        }
 
-            $results = [];
+        $results = [];
 
-            if(Auth::check()){
+        if(Auth::check()){
 
-                $userCheck = \App\Models\History::where('id', Auth::user()->id)->exists();
+            $userCheck = \App\Models\History::where('id', Auth::user()->id)->exists();
 
-                if(!$userCheck){
+            if(!$userCheck){
+                $hotel_data['id'] = $hotel->id;
+                $hotel_data['count'] = 1;
+                $hotel_array[] = $hotel_data;
+                $travel_type['hotels'] = $hotel_array;
+                $history = new \App\Models\history;
+                $history->User_ID = Auth::User()->id;
+                $history->visited = $travel_type;
+                $history->save();
+                $currentUser = $history;
+            }
+            else{
+                $user_history = \App\Models\History::find(Auth::user()->id);
+                $history = $user_history->visited;
+                $recent = false;
+
+
+
+                if(!array_key_exists("hotels", $history)){
+
                     $hotel_data['id'] = $hotel->id;
                     $hotel_data['count'] = 1;
                     $hotel_array[] = $hotel_data;
-                    $travel_type['hotels'] = $hotel_array;
-                    $history = new \App\Models\history;
-                    $history->User_ID = Auth::User()->id;
-                    $history->visited = $travel_type;
-                    $history->save();
-                    $currentUser = $history;
+                    $history['hotels'] = $hotel_array;
+                    $user_history->visited = $history;
+                    $user_history->save();
                 }
                 else{
-                    $user_history = \App\Models\History::find(Auth::user()->id);
-                    $history = $user_history->visited;
-                    $recent = false;
-
-
-
-                    if(!array_key_exists("hotels", $history)){
-
-                        $hotel_data['id'] = $hotel->id;
-                        $hotel_data['count'] = 1;
-                        $hotel_array[] = $hotel_data;
-                        $history['hotels'] = $hotel_array;
-                        $user_history->visited = $history;
-                        $user_history->save();
-                    }
-                    else{
-                        foreach ($history['hotels'] as $key => $history_data) {
-                            if($history_data['id'] == $hotel->id){
-                                $recent = true;
-                                $history['hotels'][$key]['count'] = $history_data['count'] + 1;
-                            }
-
-                        }
-                        if(!$recent){
-                            $travel_data['id'] = $hotel->id;
-                            $travel_data['count'] = 1;
-                            array_push($history['hotels'], $travel_data);
+                    foreach ($history['hotels'] as $key => $history_data) {
+                        if($history_data['id'] == $hotel->id){
+                            $recent = true;
+                            $history['hotels'][$key]['count'] = $history_data['count'] + 1;
                         }
 
-                        $user_history->visited = $history;
-                        $user_history->save();
-                        $currentUser = $user_history;
-
                     }
+                    if(!$recent){
+                        $travel_data['id'] = $hotel->id;
+                        $travel_data['count'] = 1;
+                        array_push($history['hotels'], $travel_data);
+                    }
+
+                    $user_history->visited = $history;
+                    $user_history->save();
+                    $currentUser = $user_history;
 
                 }
 
-                $results = $this->personalize(2,$hotel,$currentUser->visited);
-
             }
 
-            if(sizeof($results) == 0){
-                $filtered_travel_suggestions = \App\Models\Travel::take(3);
-            }
-            else{
-                $nop = $results[0];
-                $budget = $results[1];
-                $location = $results[2];
+            $results = $this->personalize(2,$hotel,$currentUser->search);
+
+        }
+
+        if(sizeof($results) == 0){
+            $sorted_travel_suggestions = \App\Models\Travel::take(3)->get();
+        }
+        else{
+            $nop = $results[0];
+            $budget = $results[1];
+            $location = $results[2];
 
 
-                $travel_suggestions = \App\Models\Travel::get();
+            $travel_suggestions = \App\Models\Travel::get();
 
-                $filtered_travel_suggestions = $travel_suggestions->filter(function($travel_suggestion,$key) use ($nop,$budget,$location,$pax){
+            $filtered_travel_suggestions = $travel_suggestions->filter(function($travel_suggestion,$key) use ($nop,$budget,$location,$pax){
 
-                    switch ($travel_suggestion->roomType->Bed_Size) {
+                switch ($travel_suggestion->roomType->Bed_Size) {
+                    case "1": $pax = 2;break;
+                    case "2": $pax = 2;break;
+                    case "3": $pax = 1;break;
+                    case "4": $pax = 1;break;
+                }
+                $travel_suggestion->pax =  $travel_suggestion->roomType->NBeds * $pax;
+
+                return $travel_suggestion->Price <= $budget || $travel_suggestion->pax == $nop || $travel_suggestion->roomType->hotel->place->country->id == $location->country->id || $travel_suggestion->roomType->hotel->place->country->regions->id == $location->country->regions->id;
+            });
+
+
+
+            $processed_travel_suggestions = $this->sortTravel(2, $nop, $budget, $location, $filtered_travel_suggestions);
+
+            $sorted_travel_suggestions = $processed_travel_suggestions->take(3);
+
+        }
+
+        return view('hotel_item',compact('hotel','sorted_travel_suggestions'));
+
+    }
+
+    private function personalize($page, $current, $data){
+
+        $nop = [];
+        $nop_labels = [];
+        $budget = [];
+        $budget_labels = [];
+        $location = [];
+        $location_labels = [];
+
+        if($page == 1){
+            $histories = $data['travels'];
+
+            foreach ($histories as $history) {
+                for($i = 0; $i < $history['count']; $i++){
+
+                    if(\App\Models\Travel::where('id', '=', $history['id'])->exists()){
+                        $travel_item = \App\Models\Travel::findOrFail($history['id']);
+                    }
+                    else{
+                        continue;
+                    }
+
+
+                    $travel_room = \App\Models\RoomType::findOrFail($travel_item->RoomType_ID);
+
+                    array_push($nop, [$travel_item->RoomType_ID]);
+
+                    switch ($travel_room->Bed_Size) {
                         case "1": $pax = 2;break;
                         case "2": $pax = 2;break;
                         case "3": $pax = 1;break;
                         case "4": $pax = 1;break;
                     }
-                    $travel_suggestion->pax =  $travel_suggestion->roomType->NBeds * $pax;
+                    $travel_room->pax = $travel_room->NBeds * $pax;
 
-                    return $travel_suggestion->Price <= $budget || $travel_suggestion->pax == $nop || $travel_suggestion->roomType->hotel->place->country->id == $location->country->id || $travel_suggestion->roomType->hotel->place->country->regions->id == $location->country->regions->id;
-                });
-
-
-
-                $processed_travel_suggestions = $this->sortTravel(2, $nop, $budget, $location, $filtered_travel_suggestions);
-
-                $sorted_travel_suggestions = $processed_travel_suggestions->take(3);
-
+                    array_push($nop_labels, $travel_room->pax);
+                }
             }
 
+            $nop_class = new KNearestNeighbors($k=30);
+            $nop_class->train($nop, $nop_labels);
+            $nop_results = $nop_class->predict([$current->roomType->id]);
 
-            return view('hotel_item',compact('hotel','sorted_travel_suggestions'));
 
 
+
+            foreach ($histories as $history) {
+                for($i = 0; $i < $history['count']; $i++){
+
+                    $travel_item = \App\Models\Travel::findOrFail($history['id']);
+
+                    array_push($budget, [$travel_item->Price]);
+
+                    array_push($budget_labels, $travel_item->Price);
+
+                }
+            }
+
+            $budget_class = new KNearestNeighbors($k=30);
+            $budget_class->train($budget, $budget_labels);
+            $budget_results = $budget_class->predict([$current->Price]);
+
+            foreach ($histories as $history) {
+                for($i = 0; $i < $history['count']; $i++){
+
+                    $travel_item = \App\Models\Travel::findOrFail($history['id']);
+
+                    array_push($location, [$travel_item->roomType->hotel->place->id]);
+
+                    array_push($location_labels, $travel_item->roomType->hotel->place->id);
+                }
+            }
+
+            $location_class = new KNearestNeighbors($k=30);
+            $location_class->train($location, $location_labels);
+            $location_results = $location_class->predict([$current->roomType->hotel->place->id]);
+            $location_results = \App\Models\Place::findOrFail($location_results);
+
+
+
+            return [$nop_results, $budget_results, $location_results];
         }
+        else if($page == 2){
+            $histories = $data['hotels'];
 
+            foreach ($histories as $history) {
+                for($i = 0; $i < $history['count']; $i++){
 
-        private function personalize($page, $current, $data){
+                    if(\App\Models\Travel::where('id', '=', $history['id'])->exists()){
+                        $travel_item = \App\Models\Hotel::findOrFail($history['id']);
+                    }
+                    else{
+                        continue;
+                    }
 
-            $nop = [];
-            $nop_labels = [];
-            $budget = [];
-            $budget_labels = [];
-            $location = [];
-            $location_labels = [];
+                    $travel_room = \App\Models\RoomType::where('Hotel_ID',$travel_item->id)->get();
 
-            if($page == 1){
-                $histories = $data['travels'];
+                    foreach ($travel_room as $travel_room_data) {
+                        array_push($nop, [$travel_item->id]);
 
-                foreach ($histories as $history) {
-                    for($i = 0; $i < $history['count']; $i++){
-
-                        $travel_item = \App\Models\Travel::findOrFail($history['id']);
-
-                        $travel_room = \App\Models\RoomType::findOrFail($travel_item->RoomType_ID);
-
-                        array_push($nop, [$travel_item->RoomType_ID]);
-
-                        switch ($travel_room->Bed_Size) {
+                        switch ($travel_room_data->Bed_Size) {
                             case "1": $pax = 2;break;
                             case "2": $pax = 2;break;
                             case "3": $pax = 1;break;
                             case "4": $pax = 1;break;
                         }
-                        $travel_room->pax = $travel_room->NBeds * $pax;
+                        $travel_room_data->pax = $travel_room_data->NBeds * $pax;
 
-                        array_push($nop_labels, $travel_room->pax);
+                        array_push($nop_labels, $travel_room_data->pax);
                     }
                 }
-
-                $nop_class = new KNearestNeighbors($k=3);
-                $nop_class->train($nop, $nop_labels);
-                $nop_results = $nop_class->predict([$current->roomType->id]);
-
-
-
-
-                foreach ($histories as $history) {
-                    for($i = 0; $i < $history['count']; $i++){
-
-                        $travel_item = \App\Models\Travel::findOrFail($history['id']);
-
-                        array_push($budget, [$travel_item->Price]);
-
-                        array_push($budget_labels, $travel_item->Price);
-                    }
-                }
-
-                $budget_class = new KNearestNeighbors($k=3);
-                $budget_class->train($budget, $budget_labels);
-                $budget_results = $budget_class->predict([$current->Price]);
-
-
-
-                foreach ($histories as $history) {
-                    for($i = 0; $i < $history['count']; $i++){
-
-                        $travel_item = \App\Models\Travel::findOrFail($history['id']);
-
-                        array_push($location, [$travel_item->roomType->hotel->place->id]);
-
-                        array_push($location_labels, $travel_item->roomType->hotel->place->id);
-                    }
-                }
-
-                $location_class = new KNearestNeighbors($k=3);
-                $location_class->train($location, $location_labels);
-                $location_results = $location_class->predict([$current->roomType->hotel->place->id]);
-                $location_results = \App\Models\Place::findOrFail($location_results);
-
-                return [$nop_results, $budget_results, $location_results];
-            }
-            else if($page == 2){
-                $histories = $data['hotels'];
-
-                foreach ($histories as $history) {
-                    for($i = 0; $i < $history['count']; $i++){
-
-                        $travel_item = \App\Models\Hotel::findOrFail($history['id']);
-
-                        $travel_room = \App\Models\RoomType::where('Hotel_ID',$travel_item->id)->get();
-
-                        foreach ($travel_room as $travel_room_data) {
-                            array_push($nop, [$travel_item->id]);
-
-                            switch ($travel_room_data->Bed_Size) {
-                                case "1": $pax = 2;break;
-                                case "2": $pax = 2;break;
-                                case "3": $pax = 1;break;
-                                case "4": $pax = 1;break;
-                            }
-                            $travel_room_data->pax = $travel_room_data->NBeds * $pax;
-
-                            array_push($nop_labels, $travel_room_data->pax);
-                        }
-                    }
-                }
-
-                $nop_class = new KNearestNeighbors($k=3);
-                $nop_class->train($nop, $nop_labels);
-                $nop_results = $nop_class->predict([$current->id]);
-
-                foreach ($histories as $history) {
-                    for($i = 0; $i < $history['count']; $i++){
-
-                        $travel_item = \App\Models\Hotel::findOrFail($history['id']);
-
-                        $travel_room = \App\Models\RoomType::where('Hotel_ID',$travel_item->id)->get();
-
-                        foreach ($travel_room as $travel_room_data) {
-                            array_push($budget, [$travel_item->id]);
-
-                            array_push($budget_labels, $travel_room_data->Price);
-                        }
-                    }
-                }
-
-                $budget_class = new KNearestNeighbors($k=3);
-                $budget_class->train($budget, $budget_labels);
-                $budget_results = $budget_class->predict([$current->id]);
-
-
-                foreach ($histories as $history) {
-                    for($i = 0; $i < $history['count']; $i++){
-
-                        $travel_item = \App\Models\Hotel::findOrFail($history['id']);
-
-                        array_push($location, [$travel_item->place->id]);
-
-                        array_push($location_labels, $travel_item->place->id);
-                    }
-                }
-
-                $location_class = new KNearestNeighbors($k=3);
-                $location_class->train($location, $location_labels);
-                $location_results = $location_class->predict([$current->place->id]);
-                $location_results = \App\Models\Place::findOrFail($location_results);
-
-                return [$nop_results, $budget_results, $location_results];
             }
 
+            $nop_class = new KNearestNeighbors($k=30);
+            $nop_class->train($nop, $nop_labels);
+            $nop_results = $nop_class->predict([$current->id]);
+
+
+            foreach ($histories as $history) {
+                for($i = 0; $i < $history['count']; $i++){
+
+                    $travel_item = \App\Models\Hotel::findOrFail($history['id']);
+
+                    $travel_room = \App\Models\RoomType::where('Hotel_ID',$travel_item->id)->get();
+
+                    foreach ($travel_room as $travel_room_data) {
+                        array_push($budget, [$travel_item->id]);
+
+                        array_push($budget_labels, $travel_room_data->Price);
+                    }
+                }
+            }
+
+            $budget_class = new KNearestNeighbors($k=30);
+            $budget_class->train($budget, $budget_labels);
+            $budget_results = $budget_class->predict([$current->id]);
+
+
+            foreach ($histories as $history) {
+                for($i = 0; $i < $history['count']; $i++){
+
+                    $travel_item = \App\Models\Hotel::findOrFail($history['id']);
+
+                    array_push($location, [$travel_item->place->id]);
+
+                    array_push($location_labels, $travel_item->place->id);
+                }
+            }
+
+            $location_class = new KNearestNeighbors($k=30);
+            $location_class->train($location, $location_labels);
+            $location_results = $location_class->predict([$current->place->id]);
+            $location_results = \App\Models\Place::findOrFail($location_results);
+
+            return [$nop_results, $budget_results, $location_results];
         }
-
-        private function sortTravel($type, $nop, $budget, $location, $suggestions){
-
-            $unsorted = $suggestions;
-            $sorted = collect();
-
-            if($type == 1){
-                foreach ($suggestions as $key => $suggestion) {
-                    if($suggestion->pax == $nop && $suggestion->Price <= $budget && $suggestion->roomType->hotel->place->country->id == $location->country->id){
-                        $sorted->push($suggestion);
-                        $suggestions->forget($key);
-                    }
-                }
-
-                foreach ($suggestions as $key => $suggestion) {
-                    if($suggestion->pax == $nop && $suggestion->Price <= $budget){
-                        $sorted->push($suggestion);
-                        $suggestions->forget($key);
-                    }
-                }
-
-
-                foreach ($suggestions as $key => $suggestion) {
-                    if($suggestion->Price <= $budget && $suggestion->roomType->hotel->place->country->id == $location->country->id){
-                        $sorted->push($suggestion);
-                        $suggestions->forget($key);
-                    }
-                }
-
-                foreach ($suggestions as $key => $suggestion) {
-                    if($suggestion->pax == $nop  && $suggestion->roomType->hotel->place->country->id == $location->country->id){
-                        $sorted->push($suggestion);
-                        $suggestions->forget($key);
-                    }
-                }
-
-                foreach ($suggestions as $key => $suggestion) {
-                    if($suggestion->pax == $nop){
-                        $sorted->push($suggestion);
-                        $suggestions->forget($key);
-                    }
-                }
-
-                foreach ($suggestions as $key => $suggestion) {
-                    if($suggestion->Price <= $budget){
-                        $sorted->push($suggestion);
-                        $suggestions->forget($key);
-                    }
-                }
-
-                foreach ($suggestions as $key => $suggestion) {
-                    if($suggestion->roomType->hotel->place->country->id == $location->country->id){
-                        $sorted->push($suggestion);
-                        $suggestions->forget($key);
-                    }
-                }
-
-                foreach ($suggestions as $key => $suggestion) {
-                    if($suggestion->roomType->hotel->place->country->regions->id == $location->country->regions->id){
-                        $sorted->push($suggestion);
-                        $suggestions->forget($key);
-                    }
-                }
-            }
-            else{
-                foreach ($suggestions as $key => $suggestion) {
-                    if($suggestion->pax == $nop && $suggestion->Price <= $budget && $suggestion->roomType->hotel->place->id == $location->id){
-                        $sorted->push($suggestion);
-                        $suggestions->forget($key);
-                    }
-                }
-
-                foreach ($suggestions as $key => $suggestion) {
-                    if($suggestion->pax == $nop && $suggestion->Price <= $budget && $suggestion->roomType->hotel->place->country->id == $location->country->id){
-                        $sorted->push($suggestion);
-                        $suggestions->forget($key);
-                    }
-                }
-
-                foreach ($suggestions as $key => $suggestion) {
-                    if($suggestion->pax == $nop && $suggestion->Price <= $budget){
-                        $sorted->push($suggestion);
-                        $suggestions->forget($key);
-                    }
-                }
-
-
-                foreach ($suggestions as $key => $suggestion) {
-                    if($suggestion->Price <= $budget && $suggestion->roomType->hotel->place->country->id == $location->country->id){
-                        $sorted->push($suggestion);
-                        $suggestions->forget($key);
-                    }
-                }
-
-                foreach ($suggestions as $key => $suggestion) {
-                    if($suggestion->pax == $nop  && $suggestion->roomType->hotel->place->country->id == $location->country->id){
-                        $sorted->push($suggestion);
-                        $suggestions->forget($key);
-                    }
-                }
-
-                foreach ($suggestions as $key => $suggestion) {
-                    if($suggestion->pax == $nop){
-                        $sorted->push($suggestion);
-                        $suggestions->forget($key);
-                    }
-                }
-
-                foreach ($suggestions as $key => $suggestion) {
-                    if($suggestion->Price <= $budget){
-                        $sorted->push($suggestion);
-                        $suggestions->forget($key);
-                    }
-                }
-
-                foreach ($suggestions as $key => $suggestion) {
-                    if($suggestion->roomType->hotel->place->country->id == $location->country->id){
-                        $sorted->push($suggestion);
-                        $suggestions->forget($key);
-                    }
-                }
-
-                foreach ($suggestions as $key => $suggestion) {
-                    if($suggestion->roomType->hotel->place->country->regions->id == $location->country->regions->id){
-                        $sorted->push($suggestion);
-                        $suggestions->forget($key);
-                    }
-                }
-
-            }
-            
-
-            return $sorted;
-
-        }
-
 
     }
+
+    private function sortTravel($type, $nop, $budget, $location, $suggestions){
+
+        $unsorted = $suggestions;
+        $sorted = collect();
+
+        if($type == 1){
+            foreach ($suggestions as $key => $suggestion) {
+                if($suggestion->pax == $nop && $suggestion->Price <= $budget && $suggestion->roomType->hotel->place->country->id == $location->country->id){
+                    $sorted->push($suggestion);
+                    $suggestions->forget($key);
+                }
+            }
+
+            foreach ($suggestions as $key => $suggestion) {
+                if($suggestion->pax == $nop && $suggestion->Price <= $budget){
+                    $sorted->push($suggestion);
+                    $suggestions->forget($key);
+                }
+            }
+
+
+            foreach ($suggestions as $key => $suggestion) {
+                if($suggestion->Price <= $budget && $suggestion->roomType->hotel->place->country->id == $location->country->id){
+                    $sorted->push($suggestion);
+                    $suggestions->forget($key);
+                }
+            }
+
+            foreach ($suggestions as $key => $suggestion) {
+                if($suggestion->pax == $nop  && $suggestion->roomType->hotel->place->country->id == $location->country->id){
+                    $sorted->push($suggestion);
+                    $suggestions->forget($key);
+                }
+            }
+
+            foreach ($suggestions as $key => $suggestion) {
+                if($suggestion->pax == $nop){
+                    $sorted->push($suggestion);
+                    $suggestions->forget($key);
+                }
+            }
+
+            foreach ($suggestions as $key => $suggestion) {
+                if($suggestion->Price <= $budget){
+                    $sorted->push($suggestion);
+                    $suggestions->forget($key);
+                }
+            }
+
+            foreach ($suggestions as $key => $suggestion) {
+                if($suggestion->roomType->hotel->place->country->id == $location->country->id){
+                    $sorted->push($suggestion);
+                    $suggestions->forget($key);
+                }
+            }
+
+            foreach ($suggestions as $key => $suggestion) {
+                if($suggestion->roomType->hotel->place->country->regions->id == $location->country->regions->id){
+                    $sorted->push($suggestion);
+                    $suggestions->forget($key);
+                }
+            }
+        }
+        else{
+            foreach ($suggestions as $key => $suggestion) {
+                if($suggestion->pax == $nop && $suggestion->Price <= $budget && $suggestion->roomType->hotel->place->id == $location->id){
+                    $sorted->push($suggestion);
+                    $suggestions->forget($key);
+                }
+            }
+
+            foreach ($suggestions as $key => $suggestion) {
+                if($suggestion->pax == $nop && $suggestion->Price <= $budget && $suggestion->roomType->hotel->place->country->id == $location->country->id){
+                    $sorted->push($suggestion);
+                    $suggestions->forget($key);
+                }
+            }
+
+            foreach ($suggestions as $key => $suggestion) {
+                if($suggestion->pax == $nop && $suggestion->Price <= $budget){
+                    $sorted->push($suggestion);
+                    $suggestions->forget($key);
+                }
+            }
+
+
+            foreach ($suggestions as $key => $suggestion) {
+                if($suggestion->Price <= $budget && $suggestion->roomType->hotel->place->country->id == $location->country->id){
+                    $sorted->push($suggestion);
+                    $suggestions->forget($key);
+                }
+            }
+
+            foreach ($suggestions as $key => $suggestion) {
+                if($suggestion->pax == $nop  && $suggestion->roomType->hotel->place->country->id == $location->country->id){
+                    $sorted->push($suggestion);
+                    $suggestions->forget($key);
+                }
+            }
+
+            foreach ($suggestions as $key => $suggestion) {
+                if($suggestion->pax == $nop){
+                    $sorted->push($suggestion);
+                    $suggestions->forget($key);
+                }
+            }
+
+            foreach ($suggestions as $key => $suggestion) {
+                if($suggestion->Price <= $budget){
+                    $sorted->push($suggestion);
+                    $suggestions->forget($key);
+                }
+            }
+
+            foreach ($suggestions as $key => $suggestion) {
+                if($suggestion->roomType->hotel->place->country->id == $location->country->id){
+                    $sorted->push($suggestion);
+                    $suggestions->forget($key);
+                }
+            }
+
+            foreach ($suggestions as $key => $suggestion) {
+                if($suggestion->roomType->hotel->place->country->regions->id == $location->country->regions->id){
+                    $sorted->push($suggestion);
+                    $suggestions->forget($key);
+                }
+            }
+
+        }
+
+
+        return $sorted;
+
+    }
+
+
+}

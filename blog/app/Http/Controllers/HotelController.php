@@ -20,7 +20,7 @@ class HotelController extends AppBaseController
     public function __construct(HotelRepository $hotelRepo)
     {
         $this->hotelRepository = $hotelRepo;
-        $this->middleware('auth');
+        $this->middleware('auth:staff');
     }
 
     /**

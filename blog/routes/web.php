@@ -26,6 +26,10 @@ Route::get('/travel', '\App\Http\Controllers\CustomController@travel');
 
 Route::get('/hotel', '\App\Http\Controllers\CustomController@hotel');
 
+Route::get('/purchase/{type}/{data}', '\App\Http\Controllers\CustomController@requestPurchase')->middleware('auth');
+
+Route::post('/purchase/{type}/{order}', '\App\Http\Controllers\CustomController@processPurchase');
+
 Route::get('/getTravel/{keywords}', '\App\Http\Controllers\CustomController@search_travel');
 
 Route::get('/getHotel/{keywords}', '\App\Http\Controllers\CustomController@search_hotel');
@@ -34,16 +38,24 @@ Auth::routes();
 
 Route::get('/logout', '\App\Http\Controllers\Auth\LoginController@logout');
 
-Route::get('/home', 'HomeController@index')->name('home');
+// Route::get('/home', 'HomeController@index')->name('home');
 
 
 Auth::routes();
 
-Route::get('/home', 'HomeController@index');
+Route::get('/home', 'StaffController@index');
 
+Route::prefix('staff')->group(function(){
 
+	Route::get('/login', 'Auth\StaffLoginController@showLoginForm')->name('staff.login');
 
+	Route::post('/login', 'Auth\StaffLoginController@login')->name('staff.login.submit');
 
+	Route::get('/', 'StaffController@home')->name('staff.dashboard');
+
+});
+
+Route::resource('staffPage', 'StaffController');
 
 
 Route::resource('regions', 'regionController');

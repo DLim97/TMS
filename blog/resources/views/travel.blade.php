@@ -26,6 +26,16 @@
 	font-weight: 400;
 }
 
+.filter_label{
+    color: #fff;
+    font-size: 16px;
+    display: inline-block;
+    padding: 5px 10px;
+    border: 1px solid #ffe66d;
+    margin: 10px 0px;
+    border-radius: inherit;
+}
+
 
 </style>
 
@@ -52,14 +62,16 @@
 	<div class="row">
 		<div class="col-3">
 			<form class="tms_search_filter_box shadow p-4">
+				<div class="region_label filter_label">Regions</div>
 				<div data-bind="foreach: regions">
 					<div class="custom-control custom-checkbox">
 						<input type="checkbox" class="custom-control-input" data-bind="value: id, checked: $root.selectedItem, click:$root.filterAction, attr: { id: 'customCheck' + $index() }">
 						<label class="custom-control-label" data-bind="text: name, attr: { for: 'customCheck' + $index() }"></label>
 					</div>	
 				</div>
+				<div class="budget_label filter_label">Budget</div>
 				<div>
-					<input type="number" class="form-control" data-bind="textInput: budget"/>
+					<input type="number" class="form-control" data-bind="textInput: budget" placeholder="Enter budget"/>
 				</div>
 			</form>
 		</div>
@@ -100,7 +112,7 @@
 											<a data-bind="attr:{href: '/travel_item/' + id}"><div>View</div></a>
 										</div>
 										<div class="col-12 btn_large btn_purchase_search">
-											<a href="#"><div>Purchase</div></a>
+											<a data-bind="attr:{href: '/purchase/1/' + id}"><div>Purchase</div></a>
 										</div>
 									</div>
 								</div>
@@ -122,7 +134,7 @@
 
 	var regions = {!! json_encode($region_array) !!};
 
-	function TravelBlock(id,name,start_date,end_date,price,country,region,description,image,pax){
+	function TravelBlock(id,name,start_date,end_date,price,country,region,description,image,pax,country_id,place){
 		var start = new Date(start_date);
 		var modified_start = start.getDate() + "/" + (start.getMonth() + 1) + "/" + start.getYear().toString().substr(-2);
 		var end = new Date(end_date);
@@ -139,6 +151,8 @@
 		self.description = description;
 		self.image = image;
 		self.pax = pax;
+		self.country_id = country_id;
+		self.place = place;
 	}
 
 	function RegionBlock(id, name){
@@ -149,7 +163,8 @@
 
 	function AppViewModel() {
 		var self = this;
-		this.budget = ko.observable('');
+		self.budget = ko.observable('');
+		self.sort = ko.observable('');
 		self.travels = ko.observableArray([]);
 		self.regions = ko.observableArray([]);
 		self.selectedItem = ko.observableArray([]);
@@ -192,12 +207,50 @@
 				else{
 					return bud;
 				}
-			});
+			}).sort(
+				function(up, down){
+					if(self.sort().length != 0){
+
+						var nop = self.sort()[0];
+						var budget = self.sort()[1];
+						var location = self.sort()[2];
+
+						if(up.price <= budget && up.place == location.Country_ID){
+							return -1;
+						}
+
+						if(up.price <= budget && up.place == location.id){
+							return -1;
+						}
+
+						if(up.pax == nop && up.country_id == location.Country_ID){
+							return -1;
+						}
+
+						if(up.pax == nop && up.place == location.id){
+							return -1;
+						}
+
+						if(up.price <= budget && up.pax == nop){
+							return -1;
+						}
+
+						if(up.price <= budget && up.pax == nop && up.place == location.id){
+							return -1;
+						}
+
+					}
+
+				}
+			);
+
+			
 
 			return filtered;
 		});
 
-		self.search = function() { 
+
+		self.search = function() {
 			var input = $('.search_bar').val();
 			var keywords = $.trim(input);
 
@@ -207,9 +260,10 @@
 					url: "/getTravel/" + keywords,
 				}).done(function(data) {
 					self.travels.removeAll();
-					$(data).each(function(index){
-						self.travels.push(new TravelBlock(this.id,this.Travel_Name,this.Start_date.Start_date,this.End_date.End_date,this.Price,this.Country_Name, this.Region_ID, this.Description,this.Place_IMG, this.pax));
+					$(data[0]).each(function(index){
+						self.travels.push(new TravelBlock(this.id,this.Travel_Name,this.Start_date.Start_date,this.End_date.End_date,this.Price,this.Country_Name, this.Region_ID, this.Description,this.Place_IMG, this.pax, this.Country_ID, this.Place_ID));
 					});
+					self.sort(data[1]);
 				});
 			}
 		}

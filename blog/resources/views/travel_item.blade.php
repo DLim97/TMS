@@ -162,7 +162,7 @@
         </div>
       </div>
       <h3 class="my-3">Price: <b class="price_block">RM{{$travel->Price}}</b></h3>
-      <div class="btn btn-lg btn_purchase">Purchase</div>
+      <a href="/purchase/1/{{ $travel->id }}"><div class="btn btn-lg btn_purchase">Purchase</div></a>
     </div>
 
   </div>

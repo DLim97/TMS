@@ -6,6 +6,7 @@ use Eloquent as Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 
+
 /**
  * Class Country
  * @package App\Models
@@ -18,6 +19,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Country extends Model
 {
     use SoftDeletes;
+    use \Askedio\SoftCascade\Traits\SoftCascadeTrait;
 
     public $table = 'countries';
     
@@ -30,6 +32,8 @@ class Country extends Model
         'Country_IMG',
         'Region_ID'
     ];
+
+    protected $softCascade = ['places'];
 
     /**
      * The attributes that should be casted to native types.
@@ -59,5 +63,9 @@ class Country extends Model
         return $this->belongsTo(region::class, 'Region_ID');
     }
 
+    public function places()
+    {
+        return $this->hasMany(Place::class);
+    }
     
 }

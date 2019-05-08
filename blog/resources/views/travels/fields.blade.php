@@ -48,13 +48,13 @@
 <!-- Start Date Field -->
 <div class="form-group col-sm-6">
     {!! Form::label('Start_date', 'Travel Name:') !!}
-    {!! Form::text('Start_date', (isset($travel) ? $travel->Start_date->format('Y-m-d') : 'null'), ['class' => 'form-control', 'date-providers' => 'datepicker']) !!}
+    {!! Form::text('Start_date', (isset($travel) ? $travel->Start_date->format('Y-m-d') : ''), ['class' => 'form-control', 'date-providers' => 'datepicker']) !!}
 </div>
 
 <!-- End Date Field -->
 <div class="form-group col-sm-6">
     {!! Form::label('End_date', 'Travel Name:') !!}
-    {!! Form::text('End_date', (isset($travel) ? $travel->End_date->format('Y-m-d') : 'null'), ['class' => 'form-control', 'date-providers' => 'datepicker']) !!}
+    {!! Form::text('End_date', (isset($travel) ? $travel->End_date->format('Y-m-d') : ''), ['class' => 'form-control', 'date-providers' => 'datepicker']) !!}
 </div>
 
 <!-- Price Field -->

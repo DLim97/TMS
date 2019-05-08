@@ -5,6 +5,7 @@ namespace App\Models;
 use Eloquent as Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+
 /**
  * Class Place
  * @package App\Models
@@ -17,9 +18,11 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Place extends Model
 {
     use SoftDeletes;
+    use \Askedio\SoftCascade\Traits\SoftCascadeTrait;
 
     public $table = 'places';
     
+    protected $softCascade = ['hotels','activities'];
 
     protected $dates = ['deleted_at'];
 
@@ -58,6 +61,16 @@ class Place extends Model
     public function country()
     {
         return $this->belongsTo(Country::class, 'Country_ID');
+    }
+
+    public function hotels()
+    {
+        return $this->hasMany(Hotel::class);
+    }
+
+    public function activities()
+    {
+        return $this->hasMany(Activity::class);
     }
 
     

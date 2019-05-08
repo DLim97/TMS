@@ -20,11 +20,14 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Order extends Model
 {
     use SoftDeletes;
+    use \Askedio\SoftCascade\Traits\SoftCascadeTrait;
 
     public $table = 'orders';
     
 
     protected $dates = ['deleted_at'];
+
+    // protected $softCascade = ['places'];
 
 
     public $fillable = [
@@ -62,6 +65,11 @@ class Order extends Model
         'End_date' => 'required',
         'Price' => 'required'
     ];
+
+    public function travel()
+    {
+        return $this->belongsTo(Travel::class, 'Travel_ID');
+    }
 
     
 }

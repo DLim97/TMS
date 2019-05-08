@@ -121,7 +121,7 @@
                     <div class="tms_custom_block_description">
                         The travel plan doesn't suite you? No worries, be your own travel agent and build a fully customized travel packages that you'll like.
                     </div>
-                    <div class="btn btn-primary tms_custom_block_button">Customize</div>
+                    <a href="/hotel"><div class="btn btn-primary tms_custom_block_button">Customize</div></a>
                 </div>
             </div>
         </div>

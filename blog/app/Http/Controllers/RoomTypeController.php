@@ -20,7 +20,7 @@ class RoomTypeController extends AppBaseController
     public function __construct(RoomTypeRepository $roomTypeRepo)
     {
         $this->roomTypeRepository = $roomTypeRepo;
-        $this->middleware('auth');
+        $this->middleware('auth:staff');
     }
 
     /**

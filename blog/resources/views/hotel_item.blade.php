@@ -143,7 +143,7 @@
             <div></div>
           </div>
           <h3 class="my-3">Price: <b class="price_block">RM<span data-bind="text: selectedRoom().price"></span></b></h3>
-          <div class="btn btn-lg btn_purchase">Customize</div>
+          <a data-bind="attr: {href: '/purchase/2/' + selectedRoom().id}"><div class="btn btn-lg btn_purchase">Purchase</div></a>
         </div>
       </div>
     </div>

@@ -31,15 +31,6 @@
     <a href="{!! route('travels.index') !!}"><i class="fa fa-edit"></i><span>Travels</span></a>
 </li>
 
-
-<li class="{{ Request::is('orders*') ? 'active' : '' }}">
-    <a href="{!! route('orders.index') !!}"><i class="fa fa-edit"></i><span>Orders</span></a>
-</li>
-
-<li class="{{ Request::is('itineraries*') ? 'active' : '' }}">
-    <a href="{!! route('itineraries.index') !!}"><i class="fa fa-edit"></i><span>Itineraries</span></a>
-</li>
-
 <li class="{{ Request::is('facilities*') ? 'active' : '' }}">
     <a href="{!! route('facilities.index') !!}"><i class="fa fa-edit"></i><span>Facilities</span></a>
 </li>

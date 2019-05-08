@@ -18,9 +18,11 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Hotel extends Model
 {
     use SoftDeletes;
+    use \Askedio\SoftCascade\Traits\SoftCascadeTrait;
 
     public $table = 'hotels';
     
+    protected $softCascade = ['roomTypes'];
 
     protected $dates = ['deleted_at'];
 
@@ -59,6 +61,21 @@ class Hotel extends Model
     public function place()
     {
         return $this->belongsTo(Place::class, 'Place_ID');
+    }
+
+    public function roomTypes()
+    {
+        return $this->hasMany(RoomType::class);
+    }
+  
+    public static function boot()
+    {
+        parent::boot();    
+        static::deleted(function($product)
+        {
+            $product->images()->delete();
+            $product->descriptions()->delete();
+        });
     }
 
     

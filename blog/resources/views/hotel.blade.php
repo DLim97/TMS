@@ -8,6 +8,12 @@
 
 .hotel_page_card{
 	height: 100%;
+	transition: 0.15s;
+}
+
+.hotel_page_card:hover{
+	cursor: pointer;
+	box-shadow: 0 .5rem 1rem rgba(0,0,0,.15);
 }
 
 .tms_search_product_price{
@@ -24,6 +30,16 @@
 
 .tms_search_product .title_name{
 	font-size: 110%;
+}
+
+.filter_label{
+    color: #fff;
+    font-size: 16px;
+    display: inline-block;
+    padding: 5px 10px;
+    border: 1px solid #ffe66d;
+    margin: 10px 0px;
+    border-radius: inherit;
 }
 
 
@@ -50,21 +66,23 @@
 	<div class="row">
 		<div class="col-3">
 			<form class="tms_search_filter_box shadow p-4">
+				<div class="region_label filter_label">Regions</div>
 				<div data-bind="foreach: regions">
 					<div class="custom-control custom-checkbox">
 						<input type="checkbox" class="custom-control-input" data-bind="value: id, checked: $root.selectedItem, click:$root.filterAction, attr: { id: 'customCheck' + $index() }">
 						<label class="custom-control-label" data-bind="text: name, attr: { for: 'customCheck' + $index() }"></label>
 					</div>	
 				</div>
+				<div class="budget_label filter_label">Budget</div>
 				<div>
-					<input type="number" class="form-control" data-bind="textInput: budget"/>
+					<input type="number" class="form-control" data-bind="textInput: budget" placeholder="Enter budget" />
 				</div>
 			</form>
 		</div>
 		<div class="col-9">
 			<div class="row"  data-bind="foreach: {data: filtered_hotels, beforeRemove: removeHotel, afterAdd: addHotel}">
 				<div class="col-6">
-					<div class="card shadow hotel_page_card">
+					<div class="card hotel_page_card">
 						<img class="card-img-top" data-bind="attr:{src: image}"  alt="Card image" style="width:100%">
 						<div class="card-body p-0">
 							<div class="col-12">
@@ -105,7 +123,7 @@
 											<a data-bind="attr:{href: '/hotel_item/' + id}"><div>View</div></a>
 										</div>
 										<div class="col-12 btn_large btn_purchase_search">
-											<a href="#"><div>Purchase</div></a>
+											<a data-bind="attr:{href: '/purchase/2/' + id}"><div>Purchase</div></a>
 										</div>
 									</div>
 								</div>
@@ -148,6 +166,7 @@
 	function AppViewModel() {
 		var self = this;
 		this.budget = ko.observable('');
+		self.sort = ko.observable('');
 		self.hotels = ko.observableArray([]);
 		self.regions = ko.observableArray([]);
 		self.selectedItem = ko.observableArray([]);
@@ -173,8 +192,6 @@
 		$(regions).each(function(index){
 			self.regions.push(new RegionBlock(this.id, this.Region_Name));
 		});
-
-		console.log(self.hotels());
 
 		self.filtered_hotels = ko.computed(function(){
 			var filtered = ko.utils.arrayFilter(self.hotels(), function(trav) {
@@ -207,7 +224,42 @@
 				else{
 					return bud;
 				}
-			});
+			}).sort(
+				function(up, down){
+					if(self.sort().length != 0){
+
+						var nop = self.sort()[0];
+						var budget = self.sort()[1];
+						var location = self.sort()[2];
+
+						if(up.roomTypes[0].Price <= budget && up.country == location.Country_Name){
+							return -1;
+						}
+
+						if(up.roomTypes[0].Price <= budget && up.place == location.Place_Name){
+							return -1;
+						}
+
+						if(up.roomTypes[0].pax == nop && up.country == location.Country_Name){
+							return -1;
+						}
+
+						if(up.roomTypes[0].pax == nop && up.place == location.Place_Name){
+							return -1;
+						}
+
+						if(up.roomTypes[0].Price <= budget && up.roomTypes[0].pax == nop){
+							return -1;
+						}
+
+						if(up.roomTypes[0].Price <= budget && up.roomTypes[0].pax == nop && up.place == location.Place_Name){
+							return -1;
+						}
+
+					}
+
+				}
+			);
 
 
 
@@ -223,9 +275,8 @@
 					method: "GET",
 					url: "/getHotel/" + keywords,
 				}).done(function(data) {
-					console.log(data);
 					self.hotels.removeAll();
-					$(data).each(function(index){
+					$(data[0]).each(function(index){
 						$(this.RoomTypes).each(function(index){
 							switch(this.Bed_Size){
 								case "1": pax = 2;break;
@@ -235,11 +286,11 @@
 							}
 							this.pax = pax * this.NBeds;
 						});
-						console.log(this);
 						self.hotels.push(new TravelBlock(this.id, this.Hotel_Name, this.Place_Name, this.Country_Name, this.Region_ID, this.RoomTypes, this.Hotel_IMG, this.Facilities));
 
 						$('[data-toggle="tooltip"]').tooltip();
 					});
+					self.sort(data[1]);
 				});
 			}
 		}

@@ -15,7 +15,7 @@ class CreateTravelsTable extends Migration
     {
         Schema::create('travels', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('Travel_Name');
+            $table->string('Travel_Name')->nullable();
             $table->integer('RoomType_ID')->unsigned();
             $table->date('Start_date');
             $table->date('End_date');

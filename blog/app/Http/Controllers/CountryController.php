@@ -20,7 +20,7 @@ class CountryController extends AppBaseController
     public function __construct(CountryRepository $countryRepo)
     {
         $this->countryRepository = $countryRepo;
-        $this->middleware('auth');
+        $this->middleware('auth:staff');
     }
 
     /**
@@ -31,6 +31,7 @@ class CountryController extends AppBaseController
      */
     public function index(Request $request)
     {
+        
         $this->countryRepository->pushCriteria(new RequestCriteria($request));
         $countries = $this->countryRepository->all();
 

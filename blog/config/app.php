@@ -189,7 +189,6 @@ return [
             Image Intervention
         */
             Intervention\Image\ImageServiceProvider::class,
-
         ],
 
     /*
