@@ -119,7 +119,7 @@
 						<div class="user_info">RM {{ $order->Price }}</div>
 					</div>
 					<div class="col-12 mb-3">
-						<label for="RoomType_Name)">Travel Dates</label>
+						<label for="RoomType_Name">Travel Dates</label>
 						<div class="input-daterange input-group" id="datepicker">
 							<input type="text" class="input-sm form-control" name="start_date" required />
 							<span class="input-group-addon">TO</span>

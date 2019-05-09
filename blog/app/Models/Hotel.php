@@ -53,7 +53,6 @@ class Hotel extends Model
      */
     public static $rules = [
         'Hotel_Name' => 'required',
-        'Hotel_IMG' => 'required',
         'Place_ID' => 'required',
         'Facility_ID' => 'required'
     ];

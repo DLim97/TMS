@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Phpml\Classification\KNearestNeighbors;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Flash;
 
 
 class CustomController extends Controller
@@ -866,5 +867,39 @@ class CustomController extends Controller
 
     }
 
+    public function clearHistory(){
+        $userCheck = \App\Models\History::where('id', Auth::user()->id)->exists();
 
+        $user_history = \App\Models\History::find(Auth::user()->id);
+
+        if($userCheck){
+           $user_history->search = null;
+           $user_history->visited = null;
+           $user_history->save();
+
+        }
+
+        return redirect()->back();
+    }
+
+    public function viewOrder(){
+
+
+        if(Auth::check()){
+            $userCheck = \App\Models\Order::where('User_ID', Auth::user()->id)->exists();
+
+            if($userCheck){
+                $order = \App\Models\Order::where('User_ID', Auth::user()->id)->get();
+            }
+            else{
+                $order = collect();
+            }
+        }
+        else{
+            abort(403);
+        }
+
+
+       return view('order',compact('orders'));
+   }
 }

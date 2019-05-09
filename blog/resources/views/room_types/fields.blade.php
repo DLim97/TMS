@@ -28,8 +28,11 @@
 </div>
 
 <!-- Roomtype Img Field -->
-<div class="form-group col-sm-6">
+<div class="form-group col-sm-12">
     {!! Form::label('RoomType_IMG', 'Roomtype Img:') !!}
+    @if(isset($roomType))
+    <img src="{{ $roomType->RoomType_IMG }}" width="100%">
+    @endif
     {!! Form::File('RoomType_IMG', ['class' => 'form-control']) !!}
 </div>
 

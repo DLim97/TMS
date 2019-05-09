@@ -44,7 +44,15 @@ class TravelController extends AppBaseController
      */
     public function create()
     {
-        return view('travels.create');
+        $travel = collect();
+
+        $hotels = \App\Models\Hotel::get();
+
+        foreach ($hotels as $hotel) {
+            $hotel->roomTypes = $hotel->roomTypes;
+        }
+
+        return view('travels.create')->with('hotels', $hotels);;
     }
 
     /**
@@ -102,7 +110,13 @@ class TravelController extends AppBaseController
             return redirect(route('travels.index'));
         }
 
-        return view('travels.edit')->with('travel', $travel);
+        $hotels = \App\Models\Hotel::get();
+
+        foreach ($hotels as $hotel) {
+            $hotel->roomTypes = $hotel->roomTypes;
+        }
+
+        return view('travels.edit')->with('travel', $travel)->with('hotels', $hotels);
     }
 
     /**

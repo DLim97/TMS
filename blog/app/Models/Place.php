@@ -54,8 +54,7 @@ class Place extends Model
     public static $rules = [
         'Place_Name' => 'required',
         'Country_ID' => 'required',
-        'Description' => 'required',
-        'Place_IMG' => 'required'
+        'Description' => 'required'
     ];
 
     public function country()

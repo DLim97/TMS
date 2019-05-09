@@ -1,12 +1,15 @@
 <!-- Hotel Name Field -->
-<div class="form-group col-sm-6">
+<div class="form-group col-sm-12">
     {!! Form::label('Hotel_Name', 'Hotel Name:') !!}
     {!! Form::text('Hotel_Name', null, ['class' => 'form-control']) !!}
 </div>
 
 <!-- Hotel Img Field -->
-<div class="form-group col-sm-6">
+<div class="form-group col-sm-12">
     {!! Form::label('Hotel_IMG', 'Hotel Img:') !!}
+    @if(isset($hotel))
+    <img src="{{ $hotel->Hotel_IMG }}" width="100%">
+    @endif
     {!! Form::file('Hotel_IMG', ['class' => 'form-control']) !!}
 </div>
 

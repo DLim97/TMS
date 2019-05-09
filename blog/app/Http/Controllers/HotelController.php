@@ -57,11 +57,14 @@ class HotelController extends AppBaseController
     public function store(CreateHotelRequest $request)
     {
         $input = $request->all();
+
+        $request->validate([
+            'Hotel_IMG' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048'
+        ]);
+
         $hotel = $this->hotelRepository->create($input);
 
-        $this->validate($request, [
-            'Hotel_IMG.*' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048'
-        ]);
+
 
         if($request->hasfile('Hotel_IMG'))
         {
@@ -129,6 +132,10 @@ class HotelController extends AppBaseController
     {
         $hotel = $this->hotelRepository->findWithoutFail($id);
 
+        $request->validate([
+            'Hotel_IMG' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048'
+        ]);
+
         if (empty($hotel)) {
             Flash::error('Hotel not found');
 
@@ -137,9 +144,7 @@ class HotelController extends AppBaseController
 
         $hotel = $this->hotelRepository->update($request->all(), $id);
 
-        $this->validate($request, [
-            'Hotel_IMG.*' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048'
-        ]);
+
 
         if($request->hasfile('Hotel_IMG'))
         {

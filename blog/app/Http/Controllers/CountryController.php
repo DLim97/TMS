@@ -60,11 +60,11 @@ class CountryController extends AppBaseController
     {
         $input = $request->all();
 
-        $country = $this->countryRepository->create($input);
-
-        $this->validate($request, [
-            'Country_IMG.*' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048'
+        $request->validate([
+            'Country_IMG' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048'
         ]);
+
+        $country = $this->countryRepository->create($input);
 
         if($request->hasfile('Country_IMG'))
         {
@@ -149,9 +149,10 @@ class CountryController extends AppBaseController
             $image = $request->file('Country_IMG');
             $filename = $request->Country_Name . '.' . $image->getClientOriginalExtension();
             Image::make($image)->save( public_path('/uploads/countries/' . $filename) );
-            $country->Country_IMG = '/uploads/countries/' . $filename;
-            $country->save();
+            $country->Country_IMG = '/uploads/countries/' . $filename;   
         }
+
+        $country->save();
 
         Flash::success('Country updated successfully.');
 

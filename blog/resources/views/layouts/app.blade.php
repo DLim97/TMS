@@ -29,6 +29,9 @@
     <!-- Datepicker -->
     <link rel="stylesheet" href="{{ asset('/datepicker/css/bootstrap-datepicker.css')}}">
 
+    <!-- KnockoutJs -->
+    <script type='text/javascript' src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.5.0/knockout-min.js"></script>
+
     @yield('css')
 
 </head>

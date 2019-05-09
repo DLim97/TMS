@@ -53,7 +53,6 @@ class Country extends Model
      */
     public static $rules = [
         'Country_Name' => 'required',
-        'Country_IMG' => 'required',
         'Region_ID' => 'required'
     ];
 

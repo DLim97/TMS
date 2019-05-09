@@ -34,6 +34,10 @@ Route::get('/getTravel/{keywords}', '\App\Http\Controllers\CustomController@sear
 
 Route::get('/getHotel/{keywords}', '\App\Http\Controllers\CustomController@search_hotel');
 
+Route::get('/clearHistory', '\App\Http\Controllers\CustomController@clearHistory');
+
+Route::get('/order', '\App\Http\Controllers\CustomController@viewOrder');
+
 Auth::routes();
 
 Route::get('/logout', '\App\Http\Controllers\Auth\LoginController@logout');

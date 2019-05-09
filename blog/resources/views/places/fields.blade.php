@@ -24,6 +24,9 @@
 <!-- Place Image Field -->
 <div class="form-group col-sm-12 col-lg-12">
     {!! Form::label('Place_IMG', 'Place_IMG:') !!}
+    @if(isset($place))
+    <img src="{{ $place->Place_IMG }}" width="100%">
+    @endif
     {!! Form::file('Place_IMG', ['class' => 'form-control']) !!}
 </div>
 

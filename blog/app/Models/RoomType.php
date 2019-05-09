@@ -65,7 +65,6 @@ class RoomType extends Model
         'Hotel_ID' => 'required',
         'Price' => 'required',
         'Description' => 'required',
-        'RoomType_IMG' => 'required',
         'NBeds' => 'required',
         'Bed_Size' => 'required'
     ];

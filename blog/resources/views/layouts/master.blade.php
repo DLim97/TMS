@@ -454,8 +454,14 @@
 			</ul>
 			@if(auth()->check())
 			<ul class="navbar-nav">
-				<li class="nav-item">
-					<a class="nav-link" href="/">Welcome {!! Auth::user()->name !!}</a>
+				<li class="nav-item dropdown">
+					<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+						{!! Auth::user()->name !!}
+					</a>
+					<div class="dropdown-menu" aria-labelledby="navbarDropdown">
+						<a class="dropdown-item" data-toggle="modal" data-target="#exampleModalCenter">Clear History</a>
+						<a class="dropdown-item" href="/order">My Purchase</a>
+					</div>
 				</li>
 				<li class="nav-item">
 					<a href="{!! url('/logout') !!}" class="nav-link">Logout</a>
@@ -475,6 +481,26 @@
 	</nav>
 
 	@yield('content')
+
+	<div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+		<div class="modal-dialog modal-dialog-centered" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="exampleModalLongTitle">Warning!</h5>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					Are you sure you want to clear your history, all your preference will be reverted back to the original state.
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+					<a href="/clearHistory"><button type="button" class="btn btn-primary">Save changes</button></a>
+				</div>
+			</div>
+		</div>
+	</div>
 
 	@yield('scripts')
 

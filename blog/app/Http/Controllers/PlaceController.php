@@ -59,12 +59,12 @@ class PlaceController extends AppBaseController
     {
         $input = $request->all();
 
+        $request->validate([
+            'Place_IMG' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048'
+        ]);
+
         $place = $this->placeRepository->create($input);
 
-
-        $this->validate($request, [
-            'Place_IMG.*' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048'
-        ]);
 
         if($request->hasfile('Place_IMG'))
         {
@@ -141,8 +141,8 @@ class PlaceController extends AppBaseController
         $place = $this->placeRepository->update($request->all(), $id);
 
 
-        $this->validate($request, [
-            'Place_IMG.*' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048'
+        $request->validate([
+            'Place_IMG' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048'
         ]);
 
         if($request->hasfile('Place_IMG'))

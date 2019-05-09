@@ -59,11 +59,11 @@ class RoomTypeController extends AppBaseController
     {
         $input = $request->all();
 
-        $roomType = $this->roomTypeRepository->create($input);
-
-        $this->validate($request, [
-            'RoomType_IMG.*' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048'
+        $request->validate([
+            'RoomType_IMG' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048'
         ]);
+
+        $roomType = $this->roomTypeRepository->create($input);
 
         if($request->hasfile('RoomType_IMG'))
         {
@@ -140,8 +140,8 @@ class RoomTypeController extends AppBaseController
         $roomType = $this->roomTypeRepository->update($request->all(), $id);
 
 
-        $this->validate($request, [
-            'RoomType_IMG.*' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048'
+        $request->validate([
+            'RoomType_IMG' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048'
         ]);
 
         if($request->hasfile('RoomType_IMG'))

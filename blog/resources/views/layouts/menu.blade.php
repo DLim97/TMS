@@ -35,3 +35,8 @@
     <a href="{!! route('facilities.index') !!}"><i class="fa fa-edit"></i><span>Facilities</span></a>
 </li>
 
+@if(Auth::user()->job_title == 'Admin')
+<li class="{{ Request::is('staffPage*') ? 'active' : '' }}">
+    <a href="{!! route('staffPage.index') !!}"><i class="fa fa-edit"></i><span>Staffs</span></a>
+</li>
+@endif

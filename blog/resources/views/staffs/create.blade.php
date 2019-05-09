@@ -3,7 +3,7 @@
 @section('content')
     <section class="content-header">
         <h1>
-            Region
+            Staff
         </h1>
     </section>
     <div class="content">
@@ -12,9 +12,9 @@
 
             <div class="box-body">
                 <div class="row">
-                    {!! Form::open(['route' => 'regions.store']) !!}
+                    {!! Form::open(['route' => 'staffPage.store']) !!}
 
-                        @include('regions.fields')
+                        @include('staffs.fields')
 
                     {!! Form::close() !!}
                 </div>
