@@ -17,8 +17,8 @@ class CreateHistoryTable extends Migration
             $table->increments('id');
             $table->integer('User_ID')->unsigned();;
             $table->string('hover')->nullable();
-            $table->string('visited')->nullable();
-            $table->string('search')->nullable();
+            $table->text('visited')->nullable();
+            $table->text('search')->nullable();
             $table->timestamps();
             $table->foreign('User_ID')->references('id')->on('users');
         });

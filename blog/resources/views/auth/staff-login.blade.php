@@ -5,105 +5,185 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>Login Page</title>
 
-    <!-- Tell the browser to be responsive to screen width -->
-    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+    <link rel="icon" type="image/png" href="{{ asset('login_register_layout/images/icons/favicon.ico') }}"/>
 
-    <!-- Bootstrap 3.3.7 -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="{{ asset('login_register_layout/vendor/bootstrap/css/bootstrap.min.css') }}">
 
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="{{ asset('login_register_layout/fonts/font-awesome-4.7.0/css/font-awesome.min.css') }}">
 
-    <!-- Ionicons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ionicons/2.0.1/css/ionicons.min.css">
+    <link rel="stylesheet" type="text/css" href="{{ asset('login_register_layout/fonts/iconic/css/material-design-iconic-font.min.css') }}">
 
-    <!-- Theme style -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/admin-lte/2.4.3/css/AdminLTE.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/admin-lte/2.4.3/css/skins/_all-skins.min.css">
+    <link rel="stylesheet" type="text/css" href="{{ asset('login_register_layout/vendor/animate/animate.css') }}">
 
-    <!-- iCheck -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/iCheck/1.0.2/skins/square/_all.css">
+    <link rel="stylesheet" type="text/css" href="{{ asset('login_register_layout/vendor/css-hamburgers/hamburgers.min.css') }}">
 
-    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
-    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
-    <!--[if lt IE 9]>
-    <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
-    <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-    <![endif]-->
+    <link rel="stylesheet" type="text/css" href="{{ asset('login_register_layout/vendor/animsition/css/animsition.min.css') }}">
+
+    <link rel="stylesheet" type="text/css" href="{{ asset('login_register_layout/vendor/select2/select2.min.css') }}">
+
+    <link rel="stylesheet" type="text/css" href="{{ asset('login_register_layout/vendor/daterangepicker/daterangepicker.css') }}">
+
+    <link rel="stylesheet" type="text/css" href="{{ asset('login_register_layout/css/util.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('login_register_layout/css/main.css') }}">
+
+
+    <style type="text/css">
+    .container-login100-form-btn button{
+        margin: 0px 10px;
+    }
+
+    .back-form-btn {
+        font-family: Poppins-Medium;
+        font-size: 16px;
+        color: #555555;
+        line-height: 1.2;
+        display: -webkit-box;
+        display: -webkit-flex;
+        display: -moz-box;
+        display: -ms-flexbox;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 0 20px;
+        min-width: 120px;
+        height: 50px;
+        border-radius: 25px;
+        background: #62a6e2;
+        position: relative;
+        z-index: 1;
+        -webkit-transition: all 0.4s;
+        -o-transition: all 0.4s;
+        -moz-transition: all 0.4s;
+        transition: all 0.4s;
+    }
+
+    .back-form-btn::before {
+        content: "";
+        display: block;
+        position: absolute;
+        z-index: -1;
+        width: 100%;
+        height: 100%;
+        border-radius: 25px;
+        background-color: #fff;
+        top: 0;
+        left: 0;
+        opacity: 1;
+        -webkit-transition: all 0.4s;
+        -o-transition: all 0.4s;
+        -moz-transition: all 0.4s;
+        transition: all 0.4s;
+    }
+
+    .back-form-btn:hover {
+        color: #fff;
+    }
+
+    .back-form-btn:hover::before{
+        background-color: #62a6e2;
+    }
+
+</style>
 
 </head>
-<body class="hold-transition login-page">
-<div class="login-box">
-    <div class="login-logo">
-        <a href="{{ url('/login') }}"><b>Staff </b>Login Page</a>
-    </div>
+<body>
 
-    <!-- /.login-logo -->
-    <div class="login-box-body">
-        <p class="login-box-msg">Sign in to start your session</p>
 
-        <form method="post" action="{{ route('staff.login.submit') }}">
-            {!! csrf_field() !!}
 
-            <div class="form-group has-feedback {{ $errors->has('email') ? ' has-error' : '' }}">
-                <input type="email" class="form-control" name="email" value="{{ old('email') }}" placeholder="Email">
-                <span class="glyphicon glyphicon-envelope form-control-feedback"></span>
-                @if ($errors->has('email'))
-                    <span class="help-block">
-                    <strong>{{ $errors->first('email') }}</strong>
-                </span>
-                @endif
-            </div>
+    <div class="limiter">
+        <div class="container-login100" style="background-image: url('{{ asset('login_register_layout/images/login_bg.jpg') }}');">
+            <div class="wrap-login100">
+                <form class="login100-form validate-form" method="post" action="{{ route('staff.login.submit') }}">
 
-            <div class="form-group has-feedback{{ $errors->has('password') ? ' has-error' : '' }}">
-                <input type="password" class="form-control" placeholder="Password" name="password">
-                <span class="glyphicon glyphicon-lock form-control-feedback"></span>
-                @if ($errors->has('password'))
-                    <span class="help-block">
-                    <strong>{{ $errors->first('password') }}</strong>
-                </span>
-                @endif
+                    {!! csrf_field() !!}
 
-            </div>
-            <div class="row">
-                <div class="col-xs-8">
-                    <div class="checkbox icheck">
-                        <label>
-                            <input type="checkbox" name="remember"> Remember Me
+                    <span class="login100-form-logo">
+                        <i class="zmdi zmdi-landscape"></i>
+                    </span>
+
+                    <a href="{{ url('/login') }}">
+                        <span class="login100-form-title p-b-34 p-t-27">Staff Log in</span>
+                    </a>
+
+
+                    <div class="wrap-input100 validate-input has-feedback {{ $errors->has('email') ? ' has-error' : '' }}" data-validate = "Enter email">
+                        <input class="input100" type="email" name="email" value="{{ old('email') }}" placeholder="Email">
+                        <span class="focus-input100" data-placeholder="&#xf207;"></span>
+                        @if ($errors->has('email'))
+                        <span class="help-block">
+                            <strong>{{ $errors->first('email') }}</strong>
+                        </span>
+                        @endif
+                    </div>
+
+                    <div class="wrap-input100 validate-input has-feedback{{ $errors->has('password') ? ' has-error' : '' }}" data-validate="Enter password">
+                        <input class="input100" type="password" placeholder="Password" name="password">
+                        <span class="focus-input100" data-placeholder="&#xf191;"></span>
+                        @if ($errors->has('password'))
+                        <span class="help-block">
+                            <strong>{{ $errors->first('password') }}</strong>
+                        </span>
+                        @endif
+                    </div>
+
+                    <div class="contact100-form-checkbox">
+                        <input class="input-checkbox100" id="ckb1" type="checkbox" name="remember">
+                        <label class="label-checkbox100" for="ckb1">
+                            Remember me
                         </label>
                     </div>
-                </div>
-                <!-- /.col -->
-                <div class="col-xs-4">
-                    <button type="submit" class="btn btn-primary btn-block btn-flat">Sign In</button>
-                </div>
-                <!-- /.col -->
+
+                    <div class="container-login100-form-btn">
+                        <button class="login100-form-btn">
+                            Login
+                        </button>
+                        <button class="back-form-btn" onclick="goBack()">
+                            Cancel
+                        </button>
+                    </div>
+
+
+                    <div class="text-center p-t-90">
+                        <a class="txt1" href="{{ url('/password/reset') }}">
+                            Forgot Password?
+                        </a>
+                    </div>
+                    <div class="text-center p-t-90">
+                        <a class="txt1" href="{{ url('/register') }}">
+                            I don't hve an account.
+                        </a>
+                    </div>
+                </form>
             </div>
-        </form>
-
-        <a href="{{ url('/password/reset') }}">I forgot my password</a><br>
-        <a href="{{ url('/register') }}" class="text-center">Register a new membership</a>
-
+        </div>
     </div>
-    <!-- /.login-box-body -->
-</div>
-<!-- /.login-box -->
 
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 
-<!-- AdminLTE App -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/admin-lte/2.4.3/js/adminlte.min.js"></script>
+    <div id="dropDownSelect1"></div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/iCheck/1.0.2/icheck.min.js"></script>
-<script>
-    $(function () {
-        $('input').iCheck({
-            checkboxClass: 'icheckbox_square-blue',
-            radioClass: 'iradio_square-blue',
-            increaseArea: '20%' // optional
-        });
-    });
-</script>
+    <script type="text/javascript">
+        function goBack() {
+            window.history.back();
+        }
+    </script>
+
+
+    <script src="{{ asset('login_register_layout/vendor/jquery/jquery-3.2.1.min.js') }}"></script>
+
+    <script src="{{ asset('login_register_layout/vendor/animsition/js/animsition.min.js') }}"></script>
+
+    <script src="{{ asset('login_register_layout/vendor/bootstrap/js/popper.js') }}"></script>
+    
+    <script src="{{ asset('login_register_layout/vendor/bootstrap/js/bootstrap.min.js') }}"></script>
+
+    <script src="{{ asset('login_register_layout/vendor/select2/select2.min.js') }}"></script>
+
+    <script src="{{ asset('login_register_layout/vendor/daterangepicker/moment.min.js') }}"></script>
+
+    <script src="{{ asset('login_register_layout/vendor/daterangepicker/daterangepicker.js') }}"></script>
+
+    <script src="{{ asset('login_register_layout/vendor/countdowntime/countdowntime.js') }}"></script>
+
+    <script src="{{ asset('login_register_layout/js/main.js') }}"></script>
 </body>
 </html>

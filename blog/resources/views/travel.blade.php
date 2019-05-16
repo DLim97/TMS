@@ -6,6 +6,10 @@
 
 <style type="text/css">
 
+.travel_search_block .col-4{
+	margin-bottom: 20px
+}
+
 .travel_page_card{
 	height: 100%;
 	transition: 0.15s;
@@ -76,7 +80,7 @@
 			</form>
 		</div>
 		<div class="col-9">
-			<div class="row" data-bind="foreach: {data: filtered_travels, beforeRemove: removeTravel, afterAdd: addTravel}">
+			<div class="row travel_search_block" data-bind="foreach: {data: filtered_travels, beforeRemove: removeTravel, afterAdd: addTravel}">
 				<div class="col-4">
 					<div class="card travel_page_card">
 						<img class="card-img-top" data-bind="attr:{src: image}"  alt="Card image" style="width:100%">

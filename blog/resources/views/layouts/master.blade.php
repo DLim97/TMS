@@ -32,6 +32,12 @@
 	<!-- Datepicker -->
 	<script type="text/javascript" src="{{ asset('/datepicker/js/bootstrap-datepicker.js')}}"></script>
 
+	<!-- Data Tables -->
+	<link rel="stylesheet" type="text/css" href="{{ asset('/DataTables/datatables.min.css')}}"/>
+
+	<!-- Data Tables -->
+	<script type="text/javascript" src="{{ asset('/DataTables/datatables.min.js')}}"></script>
+
 	<style type="text/css">
 
 	body{

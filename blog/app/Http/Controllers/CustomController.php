@@ -423,6 +423,7 @@ class CustomController extends Controller
 
         }
 
+
         if(sizeof($results) == 0){
             $sorted_travel_suggestions = \App\Models\Travel::take(3)->get();
         }
@@ -612,7 +613,7 @@ class CustomController extends Controller
                 }
             }
 
-            $nop_class = new KNearestNeighbors($k=30);
+            $nop_class = new KNearestNeighbors($k=50);
             $nop_class->train($nop, $nop_labels);
             $nop_results = $nop_class->predict([$current->roomType->id]);
 
@@ -631,9 +632,10 @@ class CustomController extends Controller
                 }
             }
 
-            $budget_class = new KNearestNeighbors($k=30);
+            $budget_class = new KNearestNeighbors($k=50);
             $budget_class->train($budget, $budget_labels);
             $budget_results = $budget_class->predict([$current->Price]);
+
 
             foreach ($histories as $history) {
                 for($i = 0; $i < $history['count']; $i++){
@@ -646,7 +648,7 @@ class CustomController extends Controller
                 }
             }
 
-            $location_class = new KNearestNeighbors($k=30);
+            $location_class = new KNearestNeighbors($k=50);
             $location_class->train($location, $location_labels);
             $location_results = $location_class->predict([$current->roomType->hotel->place->id]);
             $location_results = \App\Models\Place::findOrFail($location_results);
@@ -686,7 +688,7 @@ class CustomController extends Controller
                 }
             }
 
-            $nop_class = new KNearestNeighbors($k=30);
+            $nop_class = new KNearestNeighbors($k=50);
             $nop_class->train($nop, $nop_labels);
             $nop_results = $nop_class->predict([$current->id]);
 
