@@ -26,7 +26,72 @@ class StaffController extends Controller
      */
     public function home()
     {   
-        return view('home');
+        $regions = \App\Models\Region::get();
+        $countries = \App\Models\Country::get();
+        $places = \App\Models\Place::get();
+        $travels = \App\Models\Travel::get();
+        $hotels = \App\Models\Hotel::get();
+        $orders = \App\Models\Order::get();
+        $activities = \App\Models\Hotel::get();
+
+        $a = 0;
+        $b = 0;
+        $c = 0;
+        $d = 0;
+        $e = 0;
+        $f = 0;
+        $g = 0;
+        $h = 0;
+        $i = 0;
+        $j = 0;
+        $k = 0;
+        $l = 0;
+
+        foreach ($travels as $travel) {
+
+            $month = $travel->Start_date->month;
+
+            if($month == 1){
+                $a++;
+            }
+            else if($month == 2){
+                $b++;
+            }
+            else if($month == 3){
+                $c++;
+            }
+            else if($month == 4){
+                $d++;
+            }
+            else if($month == 5){
+                $e++;
+            }
+            else if($month == 6){
+                $f++;
+            }
+            else if($month == 7){
+                $g++;
+            }
+            else if($month == 8){
+                $h++;
+            }
+            else if($month == 9){
+                $i++;
+            }
+            else if($month == 10){
+                $j++;
+            }
+            else if($month == 11){
+                $k++;
+            }
+            else if($month == 12){
+                $l++;
+            }
+        }
+
+        $month_array = [$a,$b,$c,$d,$e,$f,$g,$h,$i,$j,$k,$l];
+
+        return view('home', compact('countries','travels', 'places', 'travels', 'hotels', 'orders', 'regions', 'activities','month_array'));
         
     }
 

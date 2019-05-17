@@ -71,5 +71,10 @@ class Order extends Model
         return $this->belongsTo(Travel::class, 'Travel_ID');
     }
 
+    public function roomType()
+    {
+        return $this->belongsTo(RoomType::class, 'RoomType_ID');
+    }
+
     
 }

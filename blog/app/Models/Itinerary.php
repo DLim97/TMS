@@ -35,7 +35,7 @@ class Itinerary extends Model
      */
     protected $casts = [
         'Order_ID' => 'integer',
-        'Description' => 'string'
+        'Description' => 'array'
     ];
 
     /**

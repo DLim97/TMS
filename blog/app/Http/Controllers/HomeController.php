@@ -15,7 +15,7 @@ class HomeController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('auth');
+        $this->middleware('auth:staff');
     }
 
     /**
@@ -25,26 +25,14 @@ class HomeController extends Controller
      */
     public function index()
     {   
-        $countries = \App\Models\country::get()->take(3);
-        $travels = \App\Models\travel::get();
-        return view('homepage', compact('countries','travels'));
-        
-        //Asia, Middle-East, Europe
-        // $samples = [];
-        // array_push($samples, [1]);
-        // array_push($samples, [1]);
-        // array_push($samples, [2]);
-        // array_push($samples, [3]);
-        // array_push($samples, [3]);
+        $regions = \App\Models\Region::get();
+        $countries = \App\Models\Country::get();
+        $places = \App\Models\Place::get();
+        $travels = \App\Models\Travel::get();
+        $hotels = \App\Models\Hotel::get();
+        $orders = \App\Models\Hotel::get();
+        $activities = \App\Models\Hotel::get();
 
-
-        // $labels = ['Asia','Asia','Middle-East','Europe','Europe'];
-
-        // $classifier = new KNearestNeighbors($k=3);
-        // $classifier->train($samples, $labels);
-
-        // dd($classifier->predict([1]));
-
-        // return view('home');
+        return view('home', compact('countries','travels', 'places', 'travels', 'hotels', 'orders', 'regions', 'activities'));
     }
 }

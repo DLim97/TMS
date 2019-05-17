@@ -38,6 +38,10 @@ Route::get('/clearHistory', '\App\Http\Controllers\CustomController@clearHistory
 
 Route::get('/order', '\App\Http\Controllers\CustomController@viewOrder');
 
+Route::get('/itinerary/{order}', '\App\Http\Controllers\CustomController@viewItinerary');
+
+Route::post('/itinerary/{order}', '\App\Http\Controllers\CustomController@saveItinerary');
+
 Auth::routes();
 
 Route::get('/logout', '\App\Http\Controllers\Auth\LoginController@logout');

@@ -891,10 +891,10 @@ class CustomController extends Controller
             $userCheck = \App\Models\Order::where('User_ID', Auth::user()->id)->exists();
 
             if($userCheck){
-                $order = \App\Models\Order::where('User_ID', Auth::user()->id)->get();
+                $orders = \App\Models\Order::where('User_ID', Auth::user()->id)->get();
             }
             else{
-                $order = collect();
+                $orders = collect();
             }
         }
         else{
@@ -903,5 +903,53 @@ class CustomController extends Controller
 
 
        return view('order',compact('orders'));
+   }
+
+    public function viewItinerary($order){
+
+
+        if(Auth::check()){
+            $orderCheck = \App\Models\Order::where('id', $order)->exists();
+
+            if($orderCheck){
+                $orders = \App\Models\Order::find($order);
+                if($orders->User_ID != Auth::user()->id){
+                    abort(403);
+                }
+                $itinerary = \App\Models\Itinerary::where('Order_ID', $orders->id)->get();
+                
+            }
+            else{
+                abort(404);
+            }
+        }
+        else{
+            abort(403);
+        }
+
+
+       return view('itineraries',compact('itinerary','order'));
+   }
+
+    public function saveItinerary(Request $request, $order){
+
+        $todoList = $request->todolist;
+
+        if($request->ajax()){
+            $itinerary_check = \App\Models\Itinerary::where('Order_ID', $order)->exists();
+
+            if($itinerary_check){
+                $itinerary = \App\Models\Itinerary::where('Order_ID', $order)->first();
+                $itinerary->Description = $todoList;
+                $itinerary->save();
+            }
+            else{
+                $itinerary = new \App\Models\Itinerary;
+                $itinerary->Order_ID = $order;
+                $itinerary->Description = $todoList;
+                $itinerary->save();
+            }
+            return;
+        }
    }
 }

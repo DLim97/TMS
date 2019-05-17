@@ -16,7 +16,7 @@ class CreateItinerariesTable extends Migration
         Schema::create('itineraries', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('Order_ID')->unsigned();
-            $table->text('Description');
+            $table->text('Description')->nullable();
             $table->timestamps();
             $table->softDeletes();
             $table->foreign('Order_ID')->references('id')->on('orders');
