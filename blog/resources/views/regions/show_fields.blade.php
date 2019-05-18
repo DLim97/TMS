@@ -1,9 +1,3 @@
-<!-- Id Field -->
-<div class="form-group">
-    {!! Form::label('id', 'Id:') !!}
-    <p>{!! $region->id !!}</p>
-</div>
-
 <!-- Region Name Field -->
 <div class="form-group">
     {!! Form::label('Region_Name', 'Region Name:') !!}

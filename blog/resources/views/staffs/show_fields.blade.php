@@ -1,9 +1,3 @@
-<!-- Id Field -->
-<div class="form-group">
-    {!! Form::label('id', 'Id:') !!}
-    <p>{!! $staff->id !!}</p>
-</div>
-
 <!-- Staff Name Field -->
 <div class="form-group">
     {!! Form::label('name', 'Staff Name:') !!}

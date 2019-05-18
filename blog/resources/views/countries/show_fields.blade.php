@@ -1,9 +1,3 @@
-<!-- Id Field -->
-<div class="form-group">
-    {!! Form::label('id', 'Id:') !!}
-    <p>{!! $country->id !!}</p>
-</div>
-
 <!-- Country Name Field -->
 <div class="form-group">
     {!! Form::label('Country_Name', 'Country Name:') !!}
@@ -13,13 +7,13 @@
 <!-- Country Img Field -->
 <div class="form-group">
     {!! Form::label('Country_IMG', 'Country Img:') !!}
-    <p>{!! $country->Country_IMG !!}</p>
+    <div><img src='{!! $country->Country_IMG !!}' width="50%"></div>
 </div>
 
 <!-- Region Id Field -->
 <div class="form-group">
-    {!! Form::label('Region_ID', 'Region Id:') !!}
-    <p>{!! $country->Region_ID !!}</p>
+    {!! Form::label('Region_ID', 'Region:') !!}
+    <p>{!! $country->regions->Region_Name !!}</p>
 </div>
 
 <!-- Created At Field -->

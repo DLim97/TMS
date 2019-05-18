@@ -1,9 +1,3 @@
-<!-- Id Field -->
-<div class="form-group">
-    {!! Form::label('id', 'Id:') !!}
-    <p>{!! $hotel->id !!}</p>
-</div>
-
 <!-- Hotel Name Field -->
 <div class="form-group">
     {!! Form::label('Hotel_Name', 'Hotel Name:') !!}
@@ -13,19 +7,26 @@
 <!-- Hotel Img Field -->
 <div class="form-group">
     {!! Form::label('Hotel_IMG', 'Hotel Img:') !!}
-    <p>{!! $hotel->Hotel_IMG !!}</p>
+    <div><img src='{!! $hotel->Hotel_IMG !!}' width="50%"></div>
 </div>
 
 <!-- Place Id Field -->
 <div class="form-group">
-    {!! Form::label('Place_ID', 'Place Id:') !!}
-    <p>{!! $hotel->Place_ID !!}</p>
+    {!! Form::label('Place_ID', 'Place:') !!}
+    <p>{!! $hotel->place->Place_Name !!}</p>
 </div>
 
 <!-- Facility Id Field -->
 <div class="form-group">
-    {!! Form::label('Facility_ID', 'Facility Id:') !!}
-    <p>{!! $hotel->Facility_ID !!}</p>
+    {!! Form::label('Facility_ID', 'Facility:') !!}
+    @php
+    $facilities = \App\Models\Facility::findMany($hotel->Facility_ID);
+    @endphp
+    <div>
+    @foreach($facilities as $facility)
+    <button class="btn btn-info">{!! $facility->Facility_Name !!}</button>
+    @endforeach
+    </div>
 </div>
 
 <!-- Created At Field -->

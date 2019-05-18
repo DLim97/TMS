@@ -1,9 +1,3 @@
-<!-- Id Field -->
-<div class="form-group">
-    {!! Form::label('id', 'Id:') !!}
-    <p>{!! $activity->id !!}</p>
-</div>
-
 <!-- Activity Name Field -->
 <div class="form-group">
     {!! Form::label('Activity_Name', 'Activity Name:') !!}
@@ -24,7 +18,7 @@
 
 <!-- Place Id Field -->
 <div class="form-group">
-    {!! Form::label('Place_ID', 'Place Id:') !!}
+    {!! Form::label('Place_ID', 'Place:') !!}
     <p>{!! $activity->place->Place_Name !!}</p>
 </div>
 

@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Hash;
 use Flash;
 
 
-class StaffController extends Controller
+class StaffController extends AppBaseController
 {
     /**
      * Create a new controller instance.

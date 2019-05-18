@@ -1,9 +1,3 @@
-<!-- Id Field -->
-<div class="form-group">
-    {!! Form::label('id', 'Id:') !!}
-    <p>{!! $roomType->id !!}</p>
-</div>
-
 <!-- Roomtype Name Field -->
 <div class="form-group">
     {!! Form::label('RoomType_Name', 'Roomtype Name:') !!}
@@ -13,7 +7,7 @@
 <!-- Hotel Id Field -->
 <div class="form-group">
     {!! Form::label('Hotel_ID', 'Hotel Id:') !!}
-    <p>{!! $roomType->Hotel_ID !!}</p>
+    <p>{!! $roomType->hotel->Hotel_Name !!}</p>
 </div>
 
 <!-- Price Field -->
@@ -31,7 +25,7 @@
 <!-- Roomtype Img Field -->
 <div class="form-group">
     {!! Form::label('RoomType_IMG', 'Roomtype Img:') !!}
-    <p>{!! $roomType->RoomType_IMG !!}</p>
+    <div><img src="{!! $roomType->RoomType_IMG !!}" width="50%"></div>
 </div>
 
 <!-- Nbeds Field -->

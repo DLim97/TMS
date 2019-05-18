@@ -1,9 +1,3 @@
-<!-- Id Field -->
-<div class="form-group">
-    {!! Form::label('id', 'Id:') !!}
-    <p>{!! $place->id !!}</p>
-</div>
-
 <!-- Place Name Field -->
 <div class="form-group">
     {!! Form::label('Place_Name', 'Place Name:') !!}
@@ -25,7 +19,7 @@
 <!-- Place Image Field -->
 <div class="form-group">
     {!! Form::label('Image', 'Image:') !!}
-    <p>{!! $place->Place_IMG !!}</p>
+    <div><img src='{!! $place->Place_IMG !!}' width="50%"></div>
 </div>
 
 <!-- Created At Field -->

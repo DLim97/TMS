@@ -6,7 +6,7 @@
             <th>Price</th>
             <th>Description</th>
             <th>Roomtype Img</th>
-            <th>Nbeds</th>
+            <th>Number of beds</th>
             <th>Bed Size</th>
             <th colspan="3">Action</th>
         </tr>
