@@ -82,6 +82,14 @@
         background-color: #62a6e2;
     }
 
+    select.input100{
+        border: none;
+    }
+
+    select.input100 option{
+        color: #000;
+    }
+
 </style>
 </head>
 <body>
@@ -123,7 +131,10 @@
                     </div>
 
                     <div class="wrap-input100 validate-input has-feedback {{ $errors->has('gender') ? ' has-error' : '' }}" data-validate = "Enter gender">
-                        <input class="input100" type="text" name="gender" value="{{ old('gender') }}" placeholder="Gender">
+                        <select class="input100" name="gender">
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                        </select>
                         <span class="focus-input100" data-placeholder="&#xf207;"></span>
                         @if ($errors->has('gender'))
                         <span class="help-block">
@@ -133,7 +144,13 @@
                     </div>
 
                     <div class="wrap-input100 validate-input has-feedback {{ $errors->has('marital') ? ' has-error' : '' }}" data-validate = "Enter marital">
-                        <input class="input100" type="text" name="marital" value="{{ old('marital') }}" placeholder="Marital Status">
+
+                        <select class="input100" name="marital">
+                            <option value="Single">Single</option>
+                            <option value="Married">Married</option>
+                            <option value="Widowed">Widowed</option>
+                        </select>
+
                         <span class="focus-input100" data-placeholder="&#xf207;"></span>
                         @if ($errors->has('marital'))
                         <span class="help-block">

@@ -58,6 +58,10 @@ class ActivityController extends AppBaseController
     {
         $input = $request->all();
 
+        $request->validate([
+            'Price' => 'required|integer|between:1,999999.99'
+        ]);
+
         $activity = $this->activityRepository->create($input);
 
         Flash::success('Activity saved successfully.');
@@ -115,6 +119,10 @@ class ActivityController extends AppBaseController
      */
     public function update($id, UpdateActivityRequest $request)
     {
+        $request->validate([
+            'Price' => 'required|integer|between:1,999999.99'
+        ]);
+
         $activity = $this->activityRepository->findWithoutFail($id);
 
         if (empty($activity)) {

@@ -66,6 +66,10 @@ class TravelController extends AppBaseController
     {
         $input = $request->all();
 
+        $request->validate([
+            'Price' => 'required|integer|between:1,999999.99'
+        ]);
+
         $travel = $this->travelRepository->create($input);
 
         Flash::success('Travel saved successfully.');
@@ -130,6 +134,10 @@ class TravelController extends AppBaseController
     public function update($id, UpdateTravelRequest $request)
     {  
 
+        $request->validate([
+            'Price' => 'required|integer|between:1,999999.99'
+        ]);
+        
         $travel = $this->travelRepository->findWithoutFail($id);
 
         if (empty($travel)) {
