@@ -15,7 +15,61 @@ class CustomController extends Controller
 	public function index(){
 
 		$countries = \App\Models\country::get()->take(3);
-		$travels = \App\Models\travel::get();
+		$travels = \App\Models\travel::get()->take(3);
+
+        if(Auth::check()){
+            $userCheck = \App\Models\History::where('User_ID', Auth::user()->id)->exists();
+            if($userCheck){
+                $user_history = \App\Models\History::find(Auth::user()->id);
+                $most_visits = 0;
+                foreach ($user_history->visited['travels'] as $key => $visit) {
+                    if($most_visits == 0){
+                        $most_visits = $visit['id'];
+                    }
+                    else if($most_visits < $visit['count']){
+                        $most_visits = $visit['id'];
+                    }
+                }
+                $travel = \App\Models\Travel::find($most_visits);
+                $results = $this->personalize(1,$travel,$user_history->visited);
+
+                if(sizeof($results) == 0){
+                    $sorted_travel_suggestions = \App\Models\Travel::take(3)->get();
+                }
+                else{
+                    $nop = $results[0];
+                    $budget = $results[1];
+                    $location = $results[2];
+
+
+                    $travel_suggestions = \App\Models\Travel::get();
+
+                    $pax = 0;
+
+                    $filtered_travel_suggestions = $travel_suggestions->filter(function($travel_suggestion,$key) use ($nop,$budget,$location,$pax){
+
+
+                        switch ($travel_suggestion->roomType->Bed_Size) {
+                            case "1": $pax = 2;break;
+                            case "2": $pax = 2;break;
+                            case "3": $pax = 1;break;
+                            case "4": $pax = 1;break;
+                        }
+                        $travel_suggestion->pax =  $travel_suggestion->roomType->NBeds * $pax;
+
+                        return $travel_suggestion->Price <= $budget || $travel_suggestion->pax == $nop || $travel_suggestion->roomType->hotel->place->country->id == $location->country->id || $travel_suggestion->roomType->hotel->place->country->regions->id == $location->country->regions->id;
+                    });
+
+
+
+                    $processed_travel_suggestions = $this->sortTravel(1, $nop, $budget, $location, $filtered_travel_suggestions);
+
+                    $travels = $processed_travel_suggestions->take(3);
+
+                }
+
+            }
+        }
 		return view('homepage', compact('countries','travels'));
 
 	}
@@ -192,7 +246,9 @@ class CustomController extends Controller
 
             if(Auth::check()){
 
-                $userCheck = \App\Models\History::where('id', Auth::user()->id)->exists();
+                $userCheck = \App\Models\History::where('User_ID', Auth::user()->id)->exists();
+
+                $most_searched = 0;
 
                 foreach ($combined_table as $combined_table_item) {
                     $travel = \App\Models\Travel::find($combined_table_item->id);
@@ -206,7 +262,6 @@ class CustomController extends Controller
                         $history->User_ID = Auth::User()->id;
                         $history->search = $travel_type;
                         $history->save();
-                        $currentUser = $history;
                     }
                     else
                     {
@@ -245,6 +300,19 @@ class CustomController extends Controller
                     }
                 }
 
+                if($userCheck){
+                    $checkHistory = \App\Models\History::find(Auth::user()->id);
+                    foreach ($checkHistory->search['travels'] as $key => $search) {
+                        if($most_searched == 0){
+                            $most_searched = $search['id'];
+                        }
+                        else if($most_searched < $search['count']){
+                            $most_searched = $search['id'];
+                        }
+                    }
+                }
+
+                $travel = \App\Models\Travel::find($most_searched);
 
                 $results = $this->personalize(1,$travel,$currentUser->search);
 
@@ -283,12 +351,12 @@ class CustomController extends Controller
 
             if(Auth::check()){
 
-                $userCheck = \App\Models\History::where('id', Auth::user()->id)->exists();
+                $userCheck = \App\Models\History::where('User_ID', Auth::user()->id)->exists();
 
                 foreach ($combined_table as $combined_table_item) {
                     $hotel = \App\Models\Hotel::find($combined_table_item->id);
 
-
+                    $most_searched = 0;
 
                     if(!$userCheck){
                         $travel_data['id'] = $hotel->id;
@@ -330,12 +398,26 @@ class CustomController extends Controller
                             }
 
                             $user_history->search = $history;
-                            $user_history->save();
+                            // $user_history->save();
                             $currentUser = $user_history;
 
                         }
                     }
                 }
+
+                if($userCheck){
+                    $checkHistory = \App\Models\History::find(Auth::user()->id);
+                    foreach ($checkHistory->search['hotels'] as $key => $search) {
+                        if($most_searched == 0){
+                            $most_searched = $search['id'];
+                        }
+                        else if($most_searched < $search['count']){
+                            $most_searched = $search['id'];
+                        }
+                    }
+                }
+
+                $hotel = \App\Models\Hotel::find($most_searched);
 
 
                 $results = $this->personalize(2,$hotel,$currentUser->search);
@@ -372,7 +454,7 @@ class CustomController extends Controller
 
         if(Auth::check()){
 
-            $userCheck = \App\Models\History::where('id', Auth::user()->id)->exists();
+            $userCheck = \App\Models\History::where('User_ID', Auth::user()->id)->exists();
 
             if(!$userCheck){
                 $travel_data['id'] = $travel->id;
@@ -483,7 +565,7 @@ class CustomController extends Controller
 
         if(Auth::check()){
 
-            $userCheck = \App\Models\History::where('id', Auth::user()->id)->exists();
+            $userCheck = \App\Models\History::where('User_ID', Auth::user()->id)->exists();
 
             if(!$userCheck){
                 $hotel_data['id'] = $hotel->id;
@@ -613,7 +695,8 @@ class CustomController extends Controller
                 }
             }
 
-            $nop_class = new KNearestNeighbors($k=50);
+
+            $nop_class = new KNearestNeighbors($k= count($nop_labels));
             $nop_class->train($nop, $nop_labels);
             $nop_results = $nop_class->predict([$current->roomType->id]);
 
@@ -632,7 +715,7 @@ class CustomController extends Controller
                 }
             }
 
-            $budget_class = new KNearestNeighbors($k=50);
+            $budget_class = new KNearestNeighbors($k=count($nop_labels));
             $budget_class->train($budget, $budget_labels);
             $budget_results = $budget_class->predict([$current->Price]);
 
@@ -648,7 +731,7 @@ class CustomController extends Controller
                 }
             }
 
-            $location_class = new KNearestNeighbors($k=50);
+            $location_class = new KNearestNeighbors($k= count($nop_labels));
             $location_class->train($location, $location_labels);
             $location_results = $location_class->predict([$current->roomType->hotel->place->id]);
             $location_results = \App\Models\Place::findOrFail($location_results);
@@ -688,7 +771,7 @@ class CustomController extends Controller
                 }
             }
 
-            $nop_class = new KNearestNeighbors($k=50);
+            $nop_class = new KNearestNeighbors($k= count($nop_labels));
             $nop_class->train($nop, $nop_labels);
             $nop_results = $nop_class->predict([$current->id]);
 
@@ -708,7 +791,7 @@ class CustomController extends Controller
                 }
             }
 
-            $budget_class = new KNearestNeighbors($k=30);
+            $budget_class = new KNearestNeighbors($k= count($nop_labels));
             $budget_class->train($budget, $budget_labels);
             $budget_results = $budget_class->predict([$current->id]);
 
@@ -724,10 +807,11 @@ class CustomController extends Controller
                 }
             }
 
-            $location_class = new KNearestNeighbors($k=30);
+            $location_class = new KNearestNeighbors($k=count($nop_labels));
             $location_class->train($location, $location_labels);
             $location_results = $location_class->predict([$current->place->id]);
             $location_results = \App\Models\Place::findOrFail($location_results);
+            $location_results->Country_Name = $location_results->country->Country_Name;
 
             return [$nop_results, $budget_results, $location_results];
         }
@@ -870,7 +954,7 @@ class CustomController extends Controller
     }
 
     public function clearHistory(){
-        $userCheck = \App\Models\History::where('id', Auth::user()->id)->exists();
+        $userCheck = \App\Models\History::where('User_ID', Auth::user()->id)->exists();
 
         $user_history = \App\Models\History::find(Auth::user()->id);
 
@@ -951,5 +1035,13 @@ class CustomController extends Controller
             }
             return;
         }
+   }
+
+   public function aboutPage(){
+        return view('about');
+   }
+
+   public function contactPage(){
+        return view('contact');
    }
 }

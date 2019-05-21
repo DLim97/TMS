@@ -83,6 +83,22 @@
   left: 0;            
 }
 
+.activity_card .card{
+  height: 100%;
+}
+
+.activity_card .card-title{
+  display: inline-block;
+  border-bottom: 1px solid #87c0cd;
+  font-weight: 600;
+  font-size: 24px;
+}
+
+.activity_card .card-text{
+  font-size: 18px;
+}
+
+
 </style>
 
 @endsection
@@ -165,6 +181,26 @@
       <a href="/purchase/1/{{ $travel->id }}"><div class="btn btn-lg btn_purchase">Purchase</div></a>
     </div>
 
+  </div>
+
+  <div class="row my-4">
+    <div class="col-12">
+      <h1>Actvities Available in this area</h1>
+    </div>
+    
+
+      @foreach($travel->roomType->hotel->place->activities as $activity)
+      <div class="col-4 activity_card mb-4">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">{{ $activity->Activity_Name }}</h5>
+            <p class="card-text lead" style="text-align: justify;">{{ $activity->Description}}</p>
+            <div href="#" class="btn btn-primary">RM {{ $activity->Price }}</div>
+          </div>
+        </div>
+      </div>
+      @endforeach
+    
   </div>
 
   <h3 class="my-4">You May also like</h3>

@@ -63,7 +63,7 @@ class RoomType extends Model
     public static $rules = [
         'RoomType_Name' => 'required',
         'Hotel_ID' => 'required',
-        'Price' => 'required',
+        'Price' => 'required|integer|between:1,999999.99',
         'Description' => 'required',
         'NBeds' => 'required',
         'Bed_Size' => 'required'

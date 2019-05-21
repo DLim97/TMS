@@ -219,29 +219,65 @@
 						var budget = self.sort()[1];
 						var location = self.sort()[2];
 
+
+						var up_priority = 0;
+						var down_priority = 0;
+
 						if(up.price <= budget && up.place == location.Country_ID){
-							return -1;
+							up_priority++;
 						}
 
 						if(up.price <= budget && up.place == location.id){
-							return -1;
+							up_priority++;
 						}
 
 						if(up.pax == nop && up.country_id == location.Country_ID){
-							return -1;
+							up_priority++;
 						}
 
 						if(up.pax == nop && up.place == location.id){
-							return -1;
+							up_priority++;
 						}
 
 						if(up.price <= budget && up.pax == nop){
-							return -1;
+							up_priority++;
 						}
 
 						if(up.price <= budget && up.pax == nop && up.place == location.id){
+							up_priority++;
+						}
+
+
+
+						if(down.price <= budget && down.place == location.Country_ID){
+							down_priority++;
+						}
+
+						if(down.price <= budget && down.place == location.id){
+							down_priority++;
+						}
+
+						if(down.pax == nop && down.country_id == location.Country_ID){
+							down_priority++;
+						}
+
+						if(down.pax == nop && down.place == location.id){
+							down_priority++;
+						}
+
+						if(down.price <= budget && down.pax == nop){
+							down_priority++;
+						}
+
+						if(down.price <= budget && down.pax == nop && down.place == location.id){
+							down_priority++;
+						}
+
+
+						if(up_priority > down_priority){
 							return -1;
 						}
+
 
 					}
 
@@ -268,6 +304,7 @@
 						self.travels.push(new TravelBlock(this.id,this.Travel_Name,this.Start_date.Start_date,this.End_date.End_date,this.Price,this.Country_Name, this.Region_ID, this.Description,this.Place_IMG, this.pax, this.Country_ID, this.Place_ID));
 					});
 					self.sort(data[1]);
+
 				});
 			}
 		}

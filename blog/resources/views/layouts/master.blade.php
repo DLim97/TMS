@@ -15,10 +15,6 @@
 	<!-- Popper JS -->
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
 
-	<!-- Latest compiled JavaScript -->
-	<script src="{{asset('js/bootstrap.min.js')}}"></script>
-
-
 	<!-- Fonts -->
 	<link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i" rel="stylesheet">
 	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
@@ -37,6 +33,10 @@
 
 	<!-- Data Tables -->
 	<script type="text/javascript" src="{{ asset('/DataTables/datatables.min.js')}}"></script>
+
+	
+	<!-- Latest compiled JavaScript -->
+	<script src="{{asset('js/bootstrap.min.js')}}"></script>
 
 	<style type="text/css">
 
@@ -77,7 +77,9 @@
 	.tms_custom_block_cover{
 		width: 100%;
 		height: inherit;
+		position: absolute;
 		background-color: rgb(108, 117, 124, 0.8);
+		z-index: 0;
 	}
 
 	.tms_custom_block_title{
@@ -452,10 +454,10 @@
 					<a class="nav-link" href="/hotel">Hotels</a>
 				</li>
 				<li class="nav-item">
-					<a class="nav-link" href="#">About Us</a>
+					<a class="nav-link" href="/about">About Us</a>
 				</li>  
 				<li class="nav-item">
-					<a class="nav-link" href="#">Contact Us</a>
+					<a class="nav-link" href="/contact">Contact Us</a>
 				</li>  
 			</ul>
 			@if(auth()->check())

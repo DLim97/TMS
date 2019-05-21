@@ -142,15 +142,9 @@
                         </button>
                     </div>
 
-
-                    <div class="text-center p-t-90">
-                        <a class="txt1" href="{{ url('/password/reset') }}">
-                            Forgot Password?
-                        </a>
-                    </div>
                     <div class="text-center p-t-90">
                         <a class="txt1" href="{{ url('/register') }}">
-                            I don't hve an account.
+                            I don't have an account.
                         </a>
                     </div>
                 </form>

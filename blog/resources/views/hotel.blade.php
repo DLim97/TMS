@@ -236,29 +236,63 @@
 						var budget = self.sort()[1];
 						var location = self.sort()[2];
 
+						var up_priority = 0;
+						var down_priority = 0;
+
+
 						if(up.roomTypes[0].Price <= budget && up.country == location.Country_Name){
-							return -1;
+							up_priority++;
 						}
 
 						if(up.roomTypes[0].Price <= budget && up.place == location.Place_Name){
-							return -1;
+							up_priority++;
 						}
 
 						if(up.roomTypes[0].pax == nop && up.country == location.Country_Name){
-							return -1;
+							up_priority++;
 						}
 
 						if(up.roomTypes[0].pax == nop && up.place == location.Place_Name){
-							return -1;
+							up_priority++;
 						}
 
 						if(up.roomTypes[0].Price <= budget && up.roomTypes[0].pax == nop){
-							return -1;
+							up_priority++;
 						}
 
 						if(up.roomTypes[0].Price <= budget && up.roomTypes[0].pax == nop && up.place == location.Place_Name){
+							up_priority++;
+						}
+
+						if(down.roomTypes[0].Price <= budget && down.country == location.Country_Name){
+							down_priority++;
+						}
+
+						if(down.roomTypes[0].Price <= budget && down.place == location.Place_Name){
+							down_priority++;
+						}
+
+						if(down.roomTypes[0].pax == nop && down.country == location.Country_Name){
+							down_priority++;
+						}
+
+						if(down.roomTypes[0].pax == nop && down.place == location.Place_Name){
+							down_priority++;
+						}
+
+						if(down.roomTypes[0].Price <= budget && down.roomTypes[0].pax == nop){
+							down_priority++;
+						}
+
+						if(down.roomTypes[0].Price <= budget && down.roomTypes[0].pax == nop && down.place == location.Place_Name){
+							down_priority++;
+						}
+
+						if(up_priority > down_priority){
 							return -1;
 						}
+
+
 
 					}
 

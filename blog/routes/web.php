@@ -42,6 +42,10 @@ Route::get('/itinerary/{order}', '\App\Http\Controllers\CustomController@viewIti
 
 Route::post('/itinerary/{order}', '\App\Http\Controllers\CustomController@saveItinerary');
 
+Route::get('/about', '\App\Http\Controllers\CustomController@aboutPage');
+
+Route::get('/contact', '\App\Http\Controllers\CustomController@contactPage');
+
 Auth::routes();
 
 Route::get('/logout', '\App\Http\Controllers\Auth\LoginController@logout');

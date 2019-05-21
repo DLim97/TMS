@@ -19,6 +19,24 @@
     transition: background-position 0.3s;
 }
 
+
+.custom_block{
+    background-image: url('{{ asset('image/customized.jpg')  }}');
+    background-size: 100% auto;
+    background-position: center;
+    height: 450px;
+    display: flex;
+    align-items: center;
+    position: relative;
+}
+
+.tms_custom_block_container{
+    z-index: 1;
+    text-align: center;
+    color: white;
+    font-weight: 600;
+}
+
 </style>
 
 @endsection
@@ -110,23 +128,17 @@
 </div>
 
 
-<div class="tms_block tms_custom_block text-center">
-    <div class="row tms_custom_block_bg">
-        <div class="tms_custom_block_cover">
-            <div class="row h-100">
-                <div class="col-12 my-auto">
-                    <div class="tms_custom_block_title">
-                        Create your own travel plan
-                    </div>
-                    <div class="tms_custom_block_description">
-                        The travel plan doesn't suite you? No worries, be your own travel agent and build a fully customized travel packages that you'll like.
-                    </div>
-                    <a href="/hotel"><div class="btn btn-primary tms_custom_block_button">Customize</div></a>
-                </div>
-            </div>
-        </div>
+
+<div class="jumbotron jumbotron-fluid mb-0 custom_block">
+    <div class="tms_custom_block_cover"></div>
+    <div class="container tms_custom_block_container">
+        <h1 class="display-4">Create your own travel plan</h1>      
+        <h5 class="px-4">The travel plan doesn't suite you? No worries, be your own travel agent and build a fully customized travel packages that you'll like.</h5>
+         <a href="/hotel"><div class="btn btn-primary tms_custom_block_button">Customize</div></a>
     </div>
 </div>
+
+
 
 
 @endsection
