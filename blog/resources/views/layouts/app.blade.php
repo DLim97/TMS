@@ -176,5 +176,11 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.5/js/select2.min.js"></script>
 
     @yield('scripts')
+
+    <script type="text/javascript">
+        $('form').submit(function() {
+          $('input[type=submit]').attr('disabled',true);
+      });
+    </script>
 </body>
 </html>

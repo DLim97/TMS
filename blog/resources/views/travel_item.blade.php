@@ -200,6 +200,10 @@
         </div>
       </div>
       @endforeach
+
+      @if(sizeof($travel->roomType->hotel->place->activities) == 0)
+        <div class="col-12">{{'No activities here'}}</div>
+      @endif
     
   </div>
 

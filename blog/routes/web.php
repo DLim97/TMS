@@ -46,29 +46,19 @@ Route::get('/about', '\App\Http\Controllers\CustomController@aboutPage');
 
 Route::get('/contact', '\App\Http\Controllers\CustomController@contactPage');
 
+Route::get('/staff/login', 'Auth\StaffLoginController@showLoginForm')->name('staff.login');
+
+Route::post('/staff/login', 'Auth\StaffLoginController@login')->name('staff.login.submit');
+
+Route::get('/staff', 'StaffController@home')->name('staff.dashboard');
+
 Auth::routes();
 
 Route::get('/logout', '\App\Http\Controllers\Auth\LoginController@logout');
 
-// Route::get('/home', 'HomeController@index')->name('home');
-
-
-Auth::routes();
-
 Route::get('/home', 'StaffController@index');
 
-Route::prefix('staff')->group(function(){
-
-	Route::get('/login', 'Auth\StaffLoginController@showLoginForm')->name('staff.login');
-
-	Route::post('/login', 'Auth\StaffLoginController@login')->name('staff.login.submit');
-
-	Route::get('/', 'StaffController@home')->name('staff.dashboard');
-
-});
-
 Route::resource('staffPage', 'StaffController');
-
 
 Route::resource('regions', 'regionController');
 

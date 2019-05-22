@@ -25,7 +25,7 @@
 }
 
 .tms_search_product{
-	min-height: 
+	height: 100px;
 }
 
 .card-img-top{
@@ -190,6 +190,7 @@
 
 
 			self.hotels.push(new TravelBlock(this.id, this.Hotel_Name, this.Place, this.Country, this.Region,this.RoomTypes, this.Hotel_Image, this.Facilities));
+
 		});
 
 
@@ -238,7 +239,6 @@
 
 						var up_priority = 0;
 						var down_priority = 0;
-
 
 						if(up.roomTypes[0].Price <= budget && up.country == location.Country_Name){
 							up_priority++;

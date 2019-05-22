@@ -20,18 +20,24 @@ class CustomController extends Controller
         if(Auth::check()){
             $userCheck = \App\Models\History::where('User_ID', Auth::user()->id)->exists();
             if($userCheck){
-                $user_history = \App\Models\History::find(Auth::user()->id);
-                $most_visits = 0;
-                foreach ($user_history->visited['travels'] as $key => $visit) {
-                    if($most_visits == 0){
-                        $most_visits = $visit['id'];
+                $user_history = \App\Models\History::where('User_ID', Auth::user()->id)->get()->first();
+                if($user_history->visited){
+                    $most_visits = 0;
+                    foreach ($user_history->visited['travels'] as $key => $visit) {
+                        if($most_visits == 0){
+                            $most_visits = $visit['id'];
+                        }
+                        else if($most_visits < $visit['count']){
+                            $most_visits = $visit['id'];
+                        }
                     }
-                    else if($most_visits < $visit['count']){
-                        $most_visits = $visit['id'];
-                    }
+                    $travel = \App\Models\Travel::find($most_visits);
+                    $results = $this->personalize(1,$travel,$user_history->visited);
                 }
-                $travel = \App\Models\Travel::find($most_visits);
-                $results = $this->personalize(1,$travel,$user_history->visited);
+                else{
+                    $results = [];
+                }
+
 
                 if(sizeof($results) == 0){
                     $sorted_travel_suggestions = \App\Models\Travel::take(3)->get();
@@ -258,18 +264,26 @@ class CustomController extends Controller
                         $travel_data['count'] = 1;
                         $travel_array[] = $travel_data;
                         $travel_type['travels'] = $travel_array;
-                        $history = new \App\Models\history;
-                        $history->User_ID = Auth::User()->id;
-                        $history->search = $travel_type;
-                        $history->save();
+                        $user_history = new \App\Models\history;
+                        $user_history->User_ID = Auth::User()->id;
+                        $user_history->search = $travel_type;
+                        $user_history->save();
                     }
                     else
                     {
-                        $user_history = \App\Models\History::find(Auth::user()->id);
+                        $user_history = \App\Models\History::where('User_ID', Auth::user()->id)->get()->first();
                         $history = ($user_history->search) ? $user_history->search : [];
                         $recent = false;
 
-                        if(!array_key_exists("travels", $history)){
+                        if($history == NULL){
+                            $travel_data['id'] = $travel->id;
+                            $travel_data['count'] = 1;
+                            $travel_array[] = $travel_data;
+                            $history['travels'] = $travel_array;
+                            $user_history->search = $history;
+                            $user_history->save();
+                        }
+                        else if(!array_key_exists("travels", $history)){
 
                             $travel_data['id'] = $travel->id;
                             $travel_data['count'] = 1;
@@ -294,14 +308,17 @@ class CustomController extends Controller
 
                             $user_history->search = $history;
                             $user_history->save();
-                            $currentUser = $user_history;
+                            
 
                         }
                     }
+                    $currentUser = $user_history;
                 }
 
+                $userCheck = \App\Models\History::where('User_ID', Auth::user()->id)->exists();
+
                 if($userCheck){
-                    $checkHistory = \App\Models\History::find(Auth::user()->id);
+                    $checkHistory = \App\Models\History::where('User_ID', Auth::user()->id)->get()->first();
                     foreach ($checkHistory->search['travels'] as $key => $search) {
                         if($most_searched == 0){
                             $most_searched = $search['id'];
@@ -363,15 +380,14 @@ class CustomController extends Controller
                         $travel_data['count'] = 1;
                         $travel_array[] = $travel_data;
                         $travel_type['hotels'] = $travel_array;
-                        $history = new \App\Models\history;
-                        $history->User_ID = Auth::User()->id;
-                        $history->search = $travel_type;
-                        $history->save();
-                        $currentUser = $history;
+                        $user_history = new \App\Models\history;
+                        $user_history->User_ID = Auth::User()->id;
+                        $user_history->search = $travel_type;
+                        $user_history->save();
                     }
                     else
                     {
-                        $user_history = \App\Models\History::find(Auth::user()->id);
+                        $user_history = \App\Models\History::where('User_ID', Auth::user()->id)->get()->first();
                         $history = ($user_history->search) ? $user_history->search : [];
                         $recent = false;
 
@@ -398,15 +414,20 @@ class CustomController extends Controller
                             }
 
                             $user_history->search = $history;
-                            // $user_history->save();
-                            $currentUser = $user_history;
+                            $user_history->save();
+                            
 
                         }
+
                     }
+                    $currentUser = $user_history;
+
                 }
 
+                $userCheck = \App\Models\History::where('User_ID', Auth::user()->id)->exists();
+
                 if($userCheck){
-                    $checkHistory = \App\Models\History::find(Auth::user()->id);
+                    $checkHistory = \App\Models\History::where('User_ID', Auth::user()->id)->get()->first();
                     foreach ($checkHistory->search['hotels'] as $key => $search) {
                         if($most_searched == 0){
                             $most_searched = $search['id'];
@@ -468,12 +489,19 @@ class CustomController extends Controller
                 $currentUser = $history;
             }
             else{
-                $user_history = \App\Models\History::find(Auth::user()->id);
+                $user_history = \App\Models\History::where('User_ID', Auth::user()->id)->get()->first();
                 $history = $user_history->visited;
                 $recent = false;
 
-                if(!array_key_exists("travels", $history)){
-
+                if($history == NULL){
+                    $travel_data['id'] = $travel->id;
+                    $travel_data['count'] = 1;
+                    $travel_array[] = $travel_data;
+                    $history['travels'] = $travel_array;
+                    $user_history->visited = $history;
+                    $user_history->save();
+                }
+                else if(!array_key_exists("travels", $history)){
                     $travel_data['id'] = $travel->id;
                     $travel_data['count'] = 1;
                     $travel_array[] = $travel_data;
@@ -496,9 +524,8 @@ class CustomController extends Controller
 
                     $user_history->visited = $history;
                     $user_history->save();
-                    $currentUser = $user_history;
-
                 }
+                $currentUser = $user_history;
             }
 
             $results = $this->personalize(1,$travel,$currentUser->visited);
@@ -534,7 +561,7 @@ class CustomController extends Controller
 
             $processed_travel_suggestions = $this->sortTravel(1, $nop, $budget, $location, $filtered_travel_suggestions);
 
-            $sorted_travel_suggestions = $processed_travel_suggestions->take(3);
+            $sorted_travel_suggestions = $processed_travel_suggestions->where('id','!=',$travel->id)->take(3);
 
         }
 
@@ -579,13 +606,19 @@ class CustomController extends Controller
                 $currentUser = $history;
             }
             else{
-                $user_history = \App\Models\History::find(Auth::user()->id);
+                $user_history = \App\Models\History::where('User_ID', Auth::user()->id)->get()->first();
                 $history = $user_history->visited;
                 $recent = false;
 
-
-
-                if(!array_key_exists("hotels", $history)){
+                if($history == NULL){
+                    $hotel_data['id'] = $hotel->id;
+                    $hotel_data['count'] = 1;
+                    $hotel_array[] = $hotel_data;
+                    $history['hotels'] = $hotel_array;
+                    $user_history->visited = $history;
+                    $user_history->save();
+                }
+                else if(!array_key_exists("hotels", $history)){
 
                     $hotel_data['id'] = $hotel->id;
                     $hotel_data['count'] = 1;
@@ -610,13 +643,11 @@ class CustomController extends Controller
 
                     $user_history->visited = $history;
                     $user_history->save();
-                    $currentUser = $user_history;
-
                 }
-
+                $currentUser = $user_history;
             }
 
-            $results = $this->personalize(2,$hotel,$currentUser->search);
+            $results = $this->personalize(2,$hotel,$currentUser->visited);
 
         }
 
@@ -648,7 +679,11 @@ class CustomController extends Controller
 
             $processed_travel_suggestions = $this->sortTravel(2, $nop, $budget, $location, $filtered_travel_suggestions);
 
-            $sorted_travel_suggestions = $processed_travel_suggestions->take(3);
+            foreach ($processed_travel_suggestions as $key => $processed_travel_suggestion) {
+                $processed_travel_suggestion->hotel_id = $processed_travel_suggestion->roomType->hotel->id;
+            }
+
+            $sorted_travel_suggestions = $processed_travel_suggestions->where('hotel_id','!=',$hotel->id)->take(3);
 
         }
 
@@ -824,127 +859,148 @@ class CustomController extends Controller
         $sorted = collect();
 
         if($type == 1){
-            foreach ($suggestions as $key => $suggestion) {
-                if($suggestion->pax == $nop && $suggestion->Price <= $budget && $suggestion->roomType->hotel->place->country->id == $location->country->id){
-                    $sorted->push($suggestion);
-                    $suggestions->forget($key);
-                }
-            }
 
-            foreach ($suggestions as $key => $suggestion) {
-                if($suggestion->pax == $nop && $suggestion->Price <= $budget){
-                    $sorted->push($suggestion);
-                    $suggestions->forget($key);
+            $sorted = $suggestions->sort(function($a, $b) use ($nop,$budget,$location) { 
+
+                $a_priority = 0;
+                $b_priority = 0;
+
+                if($a->pax == $nop && $a->Price <= $budget && $a->roomType->hotel->place->country->id == $location->country->id){
+                    $a_priority++;
                 }
-            }
+                if($a->pax == $nop && $a->Price <= $budget && $a->roomType->hotel->place->country->id == $location->country->id){
+                    $a_priority++;
+                }
+                if($a->pax == $nop && $a->Price <= $budget){
+                    $a_priority++;
+                }
+                if($a->Price <= $budget && $a->roomType->hotel->place->country->id == $location->country->id){
+                    $a_priority++;
+                }
+                if($a->pax == $nop  && $a->roomType->hotel->place->country->id == $location->country->id){
+                    $a_priority++;
+                }
+                if($a->pax == $nop){
+                    $a_priority++;
+                }
+                if($a->Price <= $budget){
+                    $a_priority++;
+                }
+                if($a->roomType->hotel->place->country->id == $location->country->id){
+                    $a_priority++;
+                }
+                if($a->roomType->hotel->place->country->regions->id == $location->country->regions->id){
+                    $a_priority++;
+                }
 
 
-            foreach ($suggestions as $key => $suggestion) {
-                if($suggestion->Price <= $budget && $suggestion->roomType->hotel->place->country->id == $location->country->id){
-                    $sorted->push($suggestion);
-                    $suggestions->forget($key);
+                if($b->pax == $nop && $b->Price <= $budget && $b->roomType->hotel->place->country->id == $location->country->id){
+                    $b_priority++;
                 }
-            }
+                if($b->pax == $nop && $b->Price <= $budget && $b->roomType->hotel->place->country->id == $location->country->id){
+                    $b_priority++;
+                }
+                if($b->pax == $nop && $b->Price <= $budget){
+                    $b_priority++;
+                }
+                if($b->Price <= $budget && $b->roomType->hotel->place->country->id == $location->country->id){
+                    $b_priority++;
+                }
+                if($b->pax == $nop  && $b->roomType->hotel->place->country->id == $location->country->id){
+                    $b_priority++;
+                }
+                if($b->pax == $nop){
+                    $b_priority++;
+                }
+                if($b->Price <= $budget){
+                    $b_priority++;
+                }
+                if($b->roomType->hotel->place->country->id == $location->country->id){
+                    $b_priority++;
+                }
+                if($b->roomType->hotel->place->country->regions->id == $location->country->regions->id){
+                    $b_priority++;
+                }
 
-            foreach ($suggestions as $key => $suggestion) {
-                if($suggestion->pax == $nop  && $suggestion->roomType->hotel->place->country->id == $location->country->id){
-                    $sorted->push($suggestion);
-                    $suggestions->forget($key);
+                if($a_priority < $b_priority){
+                    return -1;
                 }
-            }
-
-            foreach ($suggestions as $key => $suggestion) {
-                if($suggestion->pax == $nop){
-                    $sorted->push($suggestion);
-                    $suggestions->forget($key);
+                else{
+                    return 1;
                 }
-            }
-
-            foreach ($suggestions as $key => $suggestion) {
-                if($suggestion->Price <= $budget){
-                    $sorted->push($suggestion);
-                    $suggestions->forget($key);
-                }
-            }
-
-            foreach ($suggestions as $key => $suggestion) {
-                if($suggestion->roomType->hotel->place->country->id == $location->country->id){
-                    $sorted->push($suggestion);
-                    $suggestions->forget($key);
-                }
-            }
-
-            foreach ($suggestions as $key => $suggestion) {
-                if($suggestion->roomType->hotel->place->country->regions->id == $location->country->regions->id){
-                    $sorted->push($suggestion);
-                    $suggestions->forget($key);
-                }
-            }
+            }); 
         }
         else{
-            foreach ($suggestions as $key => $suggestion) {
-                if($suggestion->pax == $nop && $suggestion->Price <= $budget && $suggestion->roomType->hotel->place->id == $location->id){
-                    $sorted->push($suggestion);
-                    $suggestions->forget($key);
-                }
-            }
 
-            foreach ($suggestions as $key => $suggestion) {
-                if($suggestion->pax == $nop && $suggestion->Price <= $budget && $suggestion->roomType->hotel->place->country->id == $location->country->id){
-                    $sorted->push($suggestion);
-                    $suggestions->forget($key);
-                }
-            }
+            $sorted = $suggestions->sort(function($a, $b) use ($nop,$budget,$location) { 
 
-            foreach ($suggestions as $key => $suggestion) {
-                if($suggestion->pax == $nop && $suggestion->Price <= $budget){
-                    $sorted->push($suggestion);
-                    $suggestions->forget($key);
-                }
-            }
+                $a_priority = 0;
+                $b_priority = 0;
 
-
-            foreach ($suggestions as $key => $suggestion) {
-                if($suggestion->Price <= $budget && $suggestion->roomType->hotel->place->country->id == $location->country->id){
-                    $sorted->push($suggestion);
-                    $suggestions->forget($key);
+                if($a->pax == $nop && $a->Price <= $budget && $a->roomType->hotel->place->id == $location->id){
+                    $a_priority++;
                 }
-            }
-
-            foreach ($suggestions as $key => $suggestion) {
-                if($suggestion->pax == $nop  && $suggestion->roomType->hotel->place->country->id == $location->country->id){
-                    $sorted->push($suggestion);
-                    $suggestions->forget($key);
+                if($a->pax == $nop && $a->Price <= $budget && $a->roomType->hotel->place->country->id == $location->country->id){
+                    $a_priority++;
                 }
-            }
-
-            foreach ($suggestions as $key => $suggestion) {
-                if($suggestion->pax == $nop){
-                    $sorted->push($suggestion);
-                    $suggestions->forget($key);
+                if($a->pax == $nop && $a->Price <= $budget){
+                    $a_priority++;
                 }
-            }
-
-            foreach ($suggestions as $key => $suggestion) {
-                if($suggestion->Price <= $budget){
-                    $sorted->push($suggestion);
-                    $suggestions->forget($key);
+                if($a->Price <= $budget && $a->roomType->hotel->place->country->id == $location->country->id){
+                    $a_priority++;
                 }
-            }
-
-            foreach ($suggestions as $key => $suggestion) {
-                if($suggestion->roomType->hotel->place->country->id == $location->country->id){
-                    $sorted->push($suggestion);
-                    $suggestions->forget($key);
+                if($a->pax == $nop  && $a->roomType->hotel->place->country->id == $location->country->id){
+                    $a_priority++;
                 }
-            }
-
-            foreach ($suggestions as $key => $suggestion) {
-                if($suggestion->roomType->hotel->place->country->regions->id == $location->country->regions->id){
-                    $sorted->push($suggestion);
-                    $suggestions->forget($key);
+                if($a->pax == $nop){
+                    $a_priority++;
                 }
-            }
+                if($a->Price <= $budget){
+                    $a_priority++;
+                }
+                if($a->roomType->hotel->place->country->id == $location->country->id){
+                    $a_priority++;
+                }
+                if($a->roomType->hotel->place->country->regions->id == $location->country->regions->id){
+                    $a_priority++;
+                }
+
+                if($b->pax == $nop && $b->Price <= $budget && $b->roomType->hotel->place->id == $location->id){
+                    $b_priority++;
+                }
+                if($b->pax == $nop && $b->Price <= $budget && $b->roomType->hotel->place->country->id == $location->country->id){
+                    $b_priority++;
+                }
+                if($b->pax == $nop && $b->Price <= $budget){
+                    $b_priority++;
+                }
+                if($b->Price <= $budget && $b->roomType->hotel->place->country->id == $location->country->id){
+                    $b_priority++;
+                }
+                if($b->pax == $nop  && $b->roomType->hotel->place->country->id == $location->country->id){
+                    $b_priority++;
+                }
+                if($b->pax == $nop){
+                    $b_priority++;
+                }
+                if($b->Price <= $budget){
+                    $b_priority++;
+                }
+                if($b->roomType->hotel->place->country->id == $location->country->id){
+                    $b_priority++;
+                }
+                if($b->roomType->hotel->place->country->regions->id == $location->country->regions->id){
+                    $b_priority++;
+                }
+
+                if($a_priority < $b_priority){
+                    return -1;
+                }
+                else{
+                    return 1;
+                }
+            }); 
+
 
         }
 
@@ -956,7 +1012,7 @@ class CustomController extends Controller
     public function clearHistory(){
         $userCheck = \App\Models\History::where('User_ID', Auth::user()->id)->exists();
 
-        $user_history = \App\Models\History::find(Auth::user()->id);
+        $user_history = \App\Models\History::where('User_ID', Auth::user()->id)->get()->first();
 
         if($userCheck){
            $user_history->search = null;
